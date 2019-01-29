@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+
+<head>
+    <title>SkateSpotter - component library</title>
+
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link href="https://fonts.googleapis.com/css?family=Noto+Sans:400,400i,700|Roboto+Slab:400,700" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/"
+        crossorigin="anonymous">
+    <link href="css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+
+    <link href="css/styles.css" rel="stylesheet" type="text/css" />
+
+</head>
+
+<body>
+    <div class='header-and-content'>
+        <div class='header'>
+            <nav class="navbar navbar-expand-lg sticky-top navbar-light">
+                <div class='container'>
+                    <a class="navbar-brand" href="#">
+                        <div class='logo'>
+                            <img class='logo-icon' src='/images/test-logo.svg' alt='' />
+                            <!-- <div class='logo-text'>
+                                SkateSpotter
+                            </div> -->
+                        </div>
+                    </a>
+
+                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#mainNavigation"
+                        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+
+                    <div class="collapse navbar-collapse" id="mainNavigation">
+                        <ul class="navbar-nav text-center medium-text-left">
+                            <li class="nav-item active">
+                                <a class="nav-link" href="#">Home</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">Guide</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">Gallery</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">News</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+
+        </div>
+
+        <div class='page-content'>
+            <div class='upload-component'>
+                <div class='container'>
+                    <div class='row'>
+                        <div class='col'>
+                            <form enctype="multipart/form-data" method="post"  id="uploadbox">
+                                <input type="file" name="imagefiles[]" multiple="multiple" accept="image/*" id="fileuploads"/>
+                                <div class='upload-component-dropzone'>
+                                    <div class='upload-component-intro'>
+                                        <div class='polaroids'>
+                                            <div class='polaroids-item'>
+                                                <div class='polaroids-item-inner'>
+                                                    <img src="/images/thumbnail2.png" alt="" />
+                                                </div>
+                                            </div>
+                                            <div class='polaroids-item'>
+                                                <div class='polaroids-item-inner'>
+                                                    <img src="/images/thumbnail1.png" alt="" />
+                                                </div>
+                                            </div>
+                                            <div class='polaroids-item'>
+                                                <div class='polaroids-item-inner'>
+                                                    <img src="/images/thumbnail1.png" alt="" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <h1>Upload your Skate Photographs</h1>
+                                        <span class="upload-component-large-text">Drag and drop here</span>
+                                        <span>OR</span>
+                                        <span><button class='btn btn-outline-dark upload-btn' type="button"><i class="fas fa-file-upload"></i>&nbsp;&nbsp;&nbsp;Add
+                                                images from your device</button></span>
+                                        <span class="upload-component-small-text">(max 10 images at a time)</span>
+                                    </div>
+                                </div>
+
+                                <div class='upload-component-process-stage animated fadeIn'>
+                                    <div class='upload-component-process-stage-inner'>
+                                            <span class="upload-controls"><span class="upload-indicator"></span> | <a href="#" class="upload-add-more-btn">Add more</a> | <a class="upload-add-clearfiles-btn" href="#">Cancel</a></span>
+                                        <div class='upload-component-data-capture'>
+                                            <h3 class="form-header">We'd like some extra info...</h3>
+
+                                            <div class='form-fields'>
+                                                <div class='form-field-row'>
+                                                    <h4 class="form-fields-title">Please enter your name and email address</h4>
+                                                    <div class="alert alert-warning" role="alert">
+                                                        <p class='form-field-additional'>By entering your name & email, you agree to allow us to contact you if we so require in regards to any queries we have about the images. We will not contact you for any other purpose.</p>
+                                                        <p class='form-field-additional'>If you do not wish this to happen, DO NOT ENTER your email address and name </p>
+                                                    </div>
+                                                    <div class='form-row'>
+                                                        <div class='form-group col-md-6'>
+                                                            <label for='submitter'>Name <span class='optional'>(optional)</span></label>
+                                                            <input class="form-control" type='text' id='submitter'>
+                                                        </div>
+                                                        <div class='form-group col-md-6'>
+                                                            <label for='emailaddr'>Email <span class='optional'>(optional)</span></label>
+                                                            <input class="form-control" type='email' id='emailaddr'>
+                                                        </div>
+                                                    </div>
+                                                    <div class='form-row'>
+                                                        <div class='form-group col'>
+                                                            <label for='guideCheck'>Have you read the SNH Skate Handling Best Practice Guide? <span class='optional'>(optional)</span></label>
+                                                            <br>
+                                                            <div class="form-check form-check-inline">
+                                                                <input class="form-check-input" type="radio" name="guideCheck" id="guideCheckYes" value="yes">
+                                                                <label class="form-check-label" for="guideCheckYes">
+                                                                  Yes
+                                                                </label>
+                                                              </div>
+                                                              <div class="form-check form-check-inline">
+                                                                <input class="form-check-input" type="radio" name="guideCheck" id="guideCheckNo" value="no" checked>
+                                                                <label class="form-check-label" for="guideCheckNo">
+                                                                 No
+                                                                </label>
+                                                              </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class='form-row'>
+                                                        <div class='form-group'>
+                                                            <label for='lochSunartDays'>If you fish in the Loch Sunart to the Sound of Jura MPA about how many days do you fish <br>there per year? <span class='optional'>(optional)</span></label>
+                                                            <input class="form-control form-control-short" type='text' id='lochSunartDays'>
+                                                        </div>
+                                                    </div>
+                                          
+                                                    <div class='text-center'>
+                                                        <button class='btn btn-success btn-lg' id="data-capture-submit" type="button">Next</button>
+                                                        <button class='btn btn-light btn-lg' id="data-capture-skip" type="button">Skip</button>
+                                                    </div>
+                                                   
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class='upload-component-filelist'>
+                                                <div class='text-center'>
+                                                    <button class='btn btn-success btn-lg' id="filelist-submit" type="button">Upload</button>
+                                                </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class='upload-component-footer'>
+                                    <p class="upload-component-small-text">Alternatively you can email your images to <a href="mailto: skates@sams.ac.uk">skates@sams.ac.uk</a></p>
+                                </div>
+                            </form>
+                            <!-- <input type="button" id="uploadbtn" value="Upload files" class="upload-component-upload-btn">
+                            <input type="button" id="clearbtn" value="Clear files" class="upload-component-clear-btn"> -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='container'>
+                <div class="row">
+                    <div class='col'>
+                        <div class='page-content-block'>
+                            <div class='richtext'>
+                                <!-- <h1><i style="font-size: 2rem;" class="fas fa-camera-retro"></i><br> -->
+                                    <h1>We need your photographs of skates!</h1>
+                                <p class="intro">Common or flapper skate (<i>Dipturus intermedius</i>) are the largest
+                                    skates in
+                                    UK waters, reaching lengths of over 6’ (2m) and weights of over 200lbs (90kg). </p>
+                                <p>Once common,
+                                    they have suffered large declines in population numbers, and the species is now very
+                                    rare
+                                    or extinct across most of its natural range. <a href="https://www.nature.scot/professional-advice/safeguarding-protected-areas-and-species/protected-areas/national-designations/marine-protected-areas/nature-conservation-5 "
+                                        target="_blank">The Loch Sunart to the Sound of Jura Marine Protected Area (MPA)</a>
+                                    is
+                                    designated to help protect the common skate in Argyll waters.</p>
+                                <p><a href="https://onlinelibrary.wiley.com/doi/full/10.1002/aqc.2937" target="_blank">Researchers
+                                        from SAMS and SNH have shown</a> that skates can be identified from the spot
+                                    patterns
+                                    on their backs. This has led to the compilation a ‘Residents Catalogue’ and database
+                                    containing the best photo of each skate identified in the MPA. Being able to identify
+                                    individual skates will eventually allow researchers to estimate the size of the skate
+                                    population in the MPA and how this changes over time. If anglers can also indicate the
+                                    general area where the skate was caught, this will help to study skate movements within
+                                    the
+                                    MPA over time. All of this will help the long-term conservation of skates in Argyll and
+                                    across Scotland.</p>
+                                <p>We would also like to receive your skate photos from elsewhere in Scotland; this
+                                    will allow us to begin building residents catalogues for other areas and check for
+                                    longer
+                                    range skate movements.</p>
+                                <p>This project relies on anglers continuing to submit photographs. We welcome any
+                                    and all photographs: please <a href="upload.html">click here to upload</a> (or select
+                                    "Upload" on the Menu). </p>
+
+                            </div>
+
+                            <div class='cta cta-ghost'>
+                                <div class='cta-text'>
+                                    <h3>Skate image gallery</h3>
+                                    <p>We are continually working on the catalogue and hope to update it every 3 months or so. Please check back often to see if your photo has been added.</p>
+                                </div>
+                                <div class='cta-action'>
+                                    <a href='#' class='btn btn-outline-dark'><i class="fas fa-images"></i>&nbsp;&nbsp;&nbsp;View our Gallery</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        <div class='cta-group'>
+                <div class='container'>
+                    <div class="row">
+                        <div class='col'><h2 class='cta-group-header'>Guides and advice</h2></div>
+                    </div>
+                    <div class="row">
+                        <div class='col-sm col-flex'>
+                            <div class='cta'>
+                                <div class='cta-text'>
+                                    <h3>Best Practice in Skate Angling</h3>
+                                    <p>The SNH guide has been written with the help of experienced skippers and anglers fishing in the Loch Sunart to the Sound of Jura Marine Protected Area (MPA) for skate...</p>
+                                </div>
+                                <div class='cta-action'>
+                                    <a href='#' class='btn btn-outline-dark'><i class="fas fa-arrow-circle-right"></i>&nbsp;&nbsp;&nbsp;Learn more</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='col-sm col-flex'>
+                            <div class='cta'>
+                                <div class='cta-text'>
+                                    <h3>How to take the best picture of your skate</h3>
+                                    <p>For advice on how to take the best picture of your skate, please click on the <br>link below...</p>
+                                </div>
+                                <div class='cta-action'>
+                                    <a href='#' class='btn btn-outline-dark'><i class="fas fa-arrow-circle-right"></i>&nbsp;&nbsp;&nbsp;Learn more</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div class="footer">
+        <img src="images/sams-logo.png" alt="The Scottish Association for Marine Science" />
+        <img src="images/snh-logo.jpg" alt="Scottish Natural Heritage" />
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+        crossorigin="anonymous"></script>
+
+    <script src="js/common.js"></script>
+    <script src="js/file-upload.js"></script>
+</body>
+
+
+</html>

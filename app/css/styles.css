@@ -1,0 +1,654 @@
+
+
+/*
+
+    Table of contents: 
+    - 01. Elements 
+    - 02. Sticky footer
+    - 03. Header and main navigation
+    - 04. Headings
+    - 05. Upload Component
+    - 06. Richtext
+    - 07. Polariods
+    - 08. CTA component
+    - xx. Footer
+    - xx.Bootstrap overrides
+
+*/
+
+/*
+
+    Swatches: 
+    - green: #49c5b6
+    - soft red: #e27d60
+    - teal: #85dcb
+    - orange: #e8a87c
+    - soft red: #c38d9e
+    - dark green: #41b3a3
+
+    Breakpoints:
+    - small: 0,
+    - medium: 40em,
+    - large: 64em
+
+*/
+
+/* ---- 01. Elements */
+
+html {
+    font-size: 14px;
+    background-color: rgba(218,223,225, .4);
+    background:
+    radial-gradient(rgba(218,223,225,.6) 15%, transparent 16%) 0 0,
+    radial-gradient(rgba(218,223,225,.6), transparent 16%) 8px 8px,
+    radial-gradient(rgba(218,223,225,.4) 15%, transparent 20%) 0 1px,
+    radial-gradient(rgba(218,223,225,.4) 15%, transparent 20%) 8px 9px;
+    background-color:rgba(218,223,225, .4);
+    background-size:16px 16px;
+}
+body {
+    font-family: 'Noto Sans', sans-serif;
+    font-weight: 400;
+    background-color: transparent;
+}
+@media screen and (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+.page-content-block {
+    background: #fff;
+    padding: 3rem 2rem;
+    margin-bottom: 3rem;
+    border: 2px solid rgba(218,223,225, .8);
+    border-radius: 2px;
+}
+
+/* ---- Keyframe animations */
+@-webkit-keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+  
+    to {
+      opacity: 1;
+    }
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+  
+    to {
+      opacity: 1;
+    }
+  }
+  
+  .fadeIn {
+    -webkit-animation-name: fadeIn;
+    animation-name: fadeIn;
+  }
+
+  .animated {
+    -webkit-animation-duration: 1s;
+    animation-duration: 1s;
+    -webkit-animation-fill-mode: both;
+    animation-fill-mode: both;
+  }
+
+/* ---- 02. Sticky footer */
+
+html, body {
+    height: 100%;
+  }
+body {
+    display: flex;
+    flex-direction: column;
+}
+.header-and-content {
+    flex: 1 0 auto;
+}
+.footer {
+    flex-shrink: 0;
+}
+
+/* ---- 03. Header and main navigation */
+
+.header {
+    box-shadow: 1px 2px 3px rgba(0,0,0,.025);
+    border-bottom: 1px solid #E6EAEA;
+    margin-bottom: 2rem;
+    background-color: #fff;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+.logo {
+    font-family: 'Quicksand', serif;
+    font-weight: 700;
+    font-size: 32px;
+    text-transform: lowercase;
+    color: #140F2D;
+    zoom: 0.70;
+    display: flex;
+    justify-content: center;
+    position: relative;
+}
+.logo-icon {
+    width: 271px;
+    height: 61px;
+}
+
+@media screen and (min-width: 768px) {
+    .logo {
+        zoom: 1;
+    }
+}
+
+/* ---- 04. Headings */
+
+h1 {
+    font-family: 'Roboto Slab', serif;
+    font-weight: 700;
+    margin-bottom: .6em;
+}
+
+/* ---- 05. Upload Component */
+
+.header + .page-content > .upload-component {
+    margin-top: -2rem;
+}
+
+.upload-component {
+    position: relative;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
+.upload-component-dropzone {
+    border: 4px dashed rgba(16, 183, 206, .8);
+    border-radius: 2px;
+    min-height: 260px;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    max-width: 940px;
+    margin-left: auto;
+    margin-right: auto;
+    transition: border-color 0.3s ease-in;
+    background-color: rgba(255,255,255,0.7);
+}
+.upload-component-dropzone.hover {
+    border-color: rgb(16, 183, 206);
+}
+
+.upload-component-intro {
+    padding: 1rem;
+    text-align: center;
+    font-weight: 600;
+    color: #140F2D;
+    position: relative;
+}
+.upload-component h1 {
+    font-size: 2.5rem;
+    transition: color 0.3s ease-in-out;
+    font-weight: 400;
+}
+.upload-component-intro span.upload-component-large-text {
+    font-size: 0.8rem;
+    transition: color 0.3s ease-in-out;
+}
+.upload-component-small-text {
+    font-size: 0.8rem;
+}
+.upload-component-intro span {
+    margin: 5px 0;
+    display: block;
+}
+
+.upload-component-footer {
+    max-width: 940px;
+    padding-top: 10px;
+    margin-left: auto;
+    margin-right: auto;
+}
+.upload-component-footer p {
+    margin-bottom: 0; 
+}
+
+.upload-component-footer a {
+    color: #140F2D;
+    transition: all 0.3s ease-in-out;
+    text-decoration: underline;
+}
+.upload-component-footer a:hover,
+.upload-component-footer a:focus {
+    color: #10b7ce;
+    text-decoration: none;
+}
+
+#fileuploads {
+    display: none;
+}
+
+.upload-component-process-stage,
+.upload-component-data-capture,
+.upload-component-filelist {
+    display: none;
+}
+
+.upload-component.is-active .upload-component-process-stage {
+    display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    padding: 2em;
+    justify-content: center;
+    align-items: center;
+}
+.upload-component.is-active .upload-component-process-stage-inner {
+    flex: none;
+    background-color: #fff;
+    border-radius: 2px;
+    flex-basis: 880px;
+    padding: 4em 2em 2em;
+    max-height: calc(100vh - 100px);
+    max-width: calc(100vw - 20px);
+    overflow: auto;
+}
+.upload-component.is-active:after {
+    content: '';
+    background-color: rgba(0,0,0,.4);
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+}
+
+.upload-component.is-active.show-data-capture .upload-component-data-capture,
+.upload-component.is-active.show-files-to-upload .upload-component-filelist {
+    display: block;
+}
+
+.upload-controls {
+    position: absolute;
+    top: 14px;
+    left: auto;
+    color: #868e96;
+    font-size: 0.9rem;
+}
+
+.upload-component-process-stage a {
+    color: #D72638;
+    transition: all 0.3s ease-in-out;
+}
+.upload-component-process-stage a:hover,
+.upload-component-process-stage a:focus {
+    color: #140F2D;
+    text-decoration: underline;
+}
+
+@media screen and (min-width: 768px) {
+    .upload-component {
+        font-size: 1.2rem;
+    }
+
+    .upload-component-intro span.upload-component-large-text {
+        font-size: 1.4rem;
+    }
+
+    .upload-component.is-active .upload-component-process-stage-inner {
+        padding: 3.5em 3em 3em;
+    }
+}
+
+/* ---- 05.b Upload Component - filelist */
+.upload-component-filelist .upload-item {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 2rem;
+}
+.upload-component-filelist .upload-item:last-child {
+    margin-bottom: 0;
+}
+.upload-component-filelist .upload-item-thumbnail {
+    display: block;
+    width: 300px;
+    flex: none;
+    margin-right: 30px;
+}
+
+/* ---- Form fields */
+
+.form-header,
+.form-fields-title {
+    margin: 0 0 1em; 
+    font-family: 'Roboto Slab', serif;
+    font-weight: 400;
+}
+.form-fields-title {
+    font-weight: 400;
+}
+.form-field-additional {
+    font-size: .8rem;
+}
+.form-field-additional:last-child {
+    margin-bottom: 0;
+}
+
+label .optional {
+    font-size: 0.8em;
+    color: #868e96;
+}
+label {
+    font-size: 1rem;
+}
+
+.form-control-short {
+    width: 120px;
+}
+
+/* ---- 06. Richtext */
+
+.richtext {
+    max-width: 940px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 3rem;
+}
+.richtext h1 {
+    font-weight: normal;
+}
+.richtext .intro {
+    font-size: 1.4rem;
+    font-family: 'Roboto Slab', serif;
+    font-weight: 400;
+}
+.richtext a {
+    color: #D72638;
+    transition: all 0.3s ease-in-out;
+}
+.richtext a:hover,
+.richtext a:focus {
+    color: #140F2D;
+    text-decoration: underline;
+}
+
+.banner-image {
+    margin-bottom: 2rem;
+}
+.banner-image img {
+    display: block;
+    max-width: 100%;
+}
+.banner-image .desktop-image {
+    display: none;
+}
+.banner-image .mobile-image {
+    display: block;
+}
+
+@media screen and (min-width: 768px) {
+    .banner-image .desktop-image {
+        display: block;
+    }
+    .banner-image .mobile-image {
+        display: none;
+    }
+    .richtext h1 {
+        text-align: center;
+        margin-bottom: 1.2em;
+    }
+}
+
+/* ---- 07. Polaroids */
+
+.polaroids {
+    position: relative;
+    display: none;
+}
+.upload-component-intro .polaroids {
+    position: absolute;
+    top: -25px;
+    right: -20px;
+    transform: translateX(-150px);
+}
+.polaroids-item {
+    top: 0;
+    left: 0;
+    position: absolute;
+    display: inline-block;
+    box-shadow: 3px 2px 5px rgba(0,0,0,.2);
+    padding: 10px 10px 26px 10px;
+    border: 1px solid rgba(218,223,225,1);
+    background-color: #fff;
+    transform: rotate(10deg);
+}
+.polaroids-item:nth-child(1) {
+    transform: rotate(40deg);
+    left: 50px;
+}
+.polaroids-item:nth-child(2) {
+    transform: rotate(30deg);
+    left: 30px;
+}
+.polaroids-item-inner {
+    width: 100px;
+    height: 100px;
+    background: #ccc;
+    overflow: hidden;
+}
+
+@media screen and (min-width: 992px) {
+    .polaroids {
+        display: block; 
+    }
+}
+
+/* ---- 08. CTA component */
+
+.cta {
+    background-color: rgba(218,223,225, .4);
+    border: 1px solid #10b7ce;
+    max-width: 940px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 3rem;
+    border-radius: 2px;
+    display: flex;
+    align-items: baseline;
+    flex-direction: column;
+}
+.cta-ghost {
+    background-color: transparent;
+    border: none;
+    border-top: 1px solid #10b7ce;
+    margin-bottom: 1rem;
+}
+.cta-ghost .cta-text {
+    padding-left: 0;
+}
+.cta-ghost .cta-action {
+    padding-right: 0;
+}
+.cta-text {
+    flex: 1;
+    padding: 1.4rem;
+    padding-bottom: 0;
+}
+.cta-text h3 {
+    font-family: 'Roboto Slab', serif;
+    font-weight: 400;
+    font-size: 1.4rem;
+    margin: 0 0 .8em;
+}
+.cta-text p {
+    font-size: 0.8rem;
+    margin: 0;
+}
+.cta-action {
+    flex: 1;
+    padding: 1.4rem;
+}
+
+.cta-group-header {
+    font-family: 'Roboto Slab', serif;
+    font-weight: 400;
+    font-size: 1.8rem;
+    margin-bottom: .6em;
+}
+
+.cta-group .cta {
+    border: 2px solid rgba(218,223,225, .8);
+    background-color: #fff;
+    flex-direction: column;
+    max-width: none;
+    width: 100%;
+}
+.cta-group .cta-text {
+    padding-bottom: 0;
+}
+
+@media screen and (min-width: 768px) {
+    .cta {
+        flex-direction: row;
+    }
+    .cta-text {
+        padding: 1.4rem;
+    }
+    .cta-action {
+        flex: none;
+    }
+}
+
+/* ---- xx. Loader */
+
+.loader-container {
+    position: relative;
+}
+.loader {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #fff;
+    padding: 40px;
+    align-items: center;
+    justify-content: center;
+    display: none;
+}
+.loader.is-active {
+    display: flex;
+}
+.loader-icon {
+    flex: none;
+    margin-right: 10px;
+}
+.loader-message {
+    flex: none;
+    margin: 0;
+}
+
+/* ---- xx. Footer */
+
+.footer {
+    text-align: center;
+    margin: 0;
+    background-color: #fff;
+    padding: 0;
+    border-top: 1px solid rgba(218,223,225,1);
+}
+.footer img {
+    max-width: 150px;
+    display: inline-block;
+    vertical-align: middle;
+    margin: 1rem 40px;
+}
+
+/* ---- xx. Bootstrap overrides */
+
+.header .navbar-brand {
+    margin-right: 0;
+}
+.header .navbar-toggler {
+    padding-left: .25rem;
+    padding-right: .25rem;
+    border: none;
+}
+.header .navbar-nav {
+    margin: 1rem -1rem 0;
+}
+.header .nav-item {
+    font-family: 'Roboto Slab', serif;
+    font-weight: 700;
+    text-transform: lowercase;
+    padding: 0 .5rem;
+    border-top: 1px solid rgba(218,223,225,.7);
+}
+.header .navbar-light .nav-link {
+    color: #140F2D;
+    transition: all 0.3s ease-in-out;
+}
+.header .navbar-light .navbar-nav .active > .nav-link {
+    color: #10b7ce;
+    text-decoration: none;
+}
+.header .navbar-light .nav-link:hover,
+.header .navbar-light .nav-link:focus,
+.header .navbar-light .nav-link:active {
+    color: #10b7ce;
+    text-decoration: underline;
+}
+
+.header .navbar-expand-lg .navbar-collapse {
+    justify-content: flex-end;
+}
+
+.btn {
+    border-radius: 3px;
+    padding: .375rem 1rem;
+}
+.btn-success:not(:disabled):not(.disabled).active:focus, 
+.btn-success:not(:disabled):not(.disabled):active:focus, 
+.show>.btn-success.dropdown-toggle:focus {
+    box-shadow: 0 0 0 0.05rem rgba(40,167,69,.5);
+}
+
+.col-flex {
+    display: flex;
+}
+
+.form-row {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+@media screen and (min-width: 768px) {
+    .header .navbar {
+        padding: 0;
+    }
+    .header .navbar-brand {
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+    .header .navbar-nav {
+        margin: 0 -0.5rem;
+    }
+    .header .nav-item {
+        border-top: none;
+    }
+    .header .nav-link {
+        padding: 1.8rem 1rem!important;
+    }
+
+    .header .active .nav-link {
+        background-color: rgba(0,0,0,0.018);
+    }
+}

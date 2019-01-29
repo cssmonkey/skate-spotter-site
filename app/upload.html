@@ -1,0 +1,947 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<title>SkateSpotter</title>
+<!-- <link href="css/style.css" rel="stylesheet" type="text/css" />-->
+<link href="css/skates.css" rel="stylesheet" type="text/css" />
+	<link rel="stylesheet" href="css/modal.css" />
+
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+<title>Untitled 1</title>
+
+<!-- JQUERY -->
+<script src="/include/external/jquery-2.2.1.js" type="text/javascript"></script>
+<link rel="stylesheet" href="/include/external/jquery-ui.css" />
+<script src="/include/external/jquery-ui.js" type="text/javascript"></script>
+
+
+<!-- BOOTSTRAP -->
+<!--<link rel="stylesheet" href="/include/external/bootstrap.min.css" /> -->
+<script src="/include/external/bootstrap.min.js"></script> <!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>-->
+<!-- OPENLAYERS -->
+<script src="/include/external/ol.js" type="text/javascript"></script>
+<link rel="stylesheet" href="/include/external/ol.css" type="text/css" />
+<script src="/include/external/proj4.js" type="text/javascript"></script>
+<!-- EXIF -->
+<script src="/include/external/exif.js" type="text/javascript"></script>
+
+ 
+
+<script language="javascript">
+
+    //Datepicker stuff
+    $.datepicker.setDefaults({
+        dateFormat: 'dd-M-yy',
+        //minDate: new Date(2018,0,1),
+        maxDate: new Date(),
+        changeMonth: true,
+        changeYear: true,
+        showOn: "button",
+        buttonImage: "/images/calendar.gif",
+        buttonImageOnly: true,
+        //showButtonPanel: true,
+        altFormat: "yy-mm-dd"
+    });
+
+    //Thise is needed when dynamically creating DAtePicker contols
+    function setDatePickerID(id) {
+        var elname="Img_"+id+"_date";
+        var dts=document.getElementById(elname);
+        if ($(dts).hasClass('hasDatepicker') === false) { //check we have not already applied this !
+            var idf = elname + "F";
+            $(dts).datepicker();
+            $(dts).datepicker("option", "altField", "#" + idf); //store in alternative field so can format for MySQL
+            //$(dts).datepicker("setDate", new Date());
+            $(dts).datepicker({
+                onSelect: function (d, i) {
+                    if (d !== i.lastVal) {
+                        $(this).change();
+                    }
+                }
+            }); //fire change event if new date entered
+        }
+
+    }
+
+
+//For upload file counting
+var filestoUpload=[]; //Stores the files to upload
+var filedata=[];
+var filesizes=[];
+var tsize;
+var fcnt=0; //number of files to upload 
+var ucnt=0; //upload counter
+var filedrag; //to hole filelist elementy
+var fileuploads;
+
+//Filtering
+var maxsize=26214400; //25MB
+var maxfiles=10;
+var filetypes=["image/jpeg","image/png"];
+
+
+    function addEvent( obj, type, fn ) {
+        if ( obj.attachEvent ) {
+            obj['e'+type+fn] = fn;
+            obj[type+fn] = function(){obj['e'+type+fn]( window.event );}
+            obj.attachEvent( 'on'+type, obj[type+fn] );
+        } else
+            obj.addEventListener( type, fn, false );
+    }
+
+function Init() {
+	//CALLED AFTER LOADING Document - set event for file selection & drag dropping
+	filedrag=document.getElementById("filelist"); //set teh filelist object as the drag & drop zone
+    filedrag.addEventListener("dragover", FileDragHover, false);
+	filedrag.addEventListener("dragleave", FileDragHover, false);
+	filedrag.addEventListener("drop", filesdragged, false);
+	fileuploads=document.getElementById("fileuploads");
+	fileuploads.addEventListener("change", filesdragged, false);
+
+
+	//prevent drag drop anywhere else on window
+	window.addEventListener("dragover",function(e){e = e || event; e.preventDefault();},false);
+    window.addEventListener("drop",function(e){ e = e || event;  e.preventDefault();},false);
+	$("#uploadbtn").addClass("hideit");
+	$("#clearbtn").addClass("hideit");
+}
+
+function FileDragHover(e) {
+    //HIghlight drag and drop box when file dragged to it
+	e.stopPropagation();
+	e.preventDefault();
+	filedrag.className = (e.type == "dragover" ? "hover" : "");
+}
+
+function filesdragged(e) {
+    //Process files dragged to drop & drag box or selected from file dialog
+     FileDragHover(e);
+	// fetch FileList object
+	var files = e.target.files || e.dataTransfer.files;
+	if ( (files.length+filestoUpload.length)>maxfiles)
+		{ alert("Maximum number of files allowed to upload ("+maxfiles+") is exceeded.\nFiles not uploaded please reduce the number of files\noe make multiple submissions.");
+		  return;}	
+	//Store files
+	var newfiles=[]; //tempororay array to hold newly added files 
+     for (idx=0;idx < files.length; ++idx) {
+		if ($.inArray(files[idx].type,filetypes)>-1) {
+            if (files[idx].size<=maxsize) {
+	           	filestoUpload.push(files[idx]); //main array
+            	newfiles.push(files[idx]); //temporary
+	            
+	            }
+			else {
+			   alert("File "+files[idx].name+" exceeds maximum file size of "+fmtbytes(maxsize)+" !"); 
+               }
+            }
+         else {
+    	     alert("File "+files[idx].name+" is not an accepted image format !"); 
+			}                  
+               
+        } //for
+    	 
+    //Display the new files
+    displayfiles(newfiles);
+}
+
+function displayfiles(files) {
+  //Process List of files selected & dragged for display
+  var ncnt=fcnt; 
+  //Create Div & img elements to display each file
+  displayfilelistsAsThumbs(filedrag,files);
+
+  //Display Upload button if files selected  
+  if (fcnt>0) {
+	  $("#uploadbtn").removeClass('hideit');
+	  $("#uploadbtn").prop("value","Upload "+fcnt+" files");
+	  $("#clearbtn").removeClass('hideit');
+	  }
+}; //function displayfiles
+
+function displayfilelistsAsThumbs(el,files) {
+//Format FileList objects as a set of Divs with IMg elements
+ var html="";
+ var ncnt=fcnt;
+  //Create an HTML element for each file
+   for (idx=0;idx < files.length; ++idx)
+     {
+     var file = files[idx];
+  	 if (file) {
+        var filesize = fmtbytes(file.size); filesizes[fcnt]= file.size; //store for upload progress monitoring
+        //CREATE HTML
+        //html= "<div class=\"divthmbselect\" id=\"file"+fcnt+"\"><img id='img"+fcnt+"' src=\"\" class=\"imgthmb\" title=\""+file.name+"\"></div>";
+		html= formatImgEntry(file,"img",fcnt,"");
+		//ADD HTML TO THE PAGE in Specfied element
+        el.insertAdjacentHTML('beforeend',html); //faster than using += on innerHTML !
+   		//Update the thumbnail from the local file
+		displayFile(file,"img"+fcnt);
+		//DAte Picker
+		 setDatePickerID(fcnt);
+        //Get EXIF data ( asynchronous !)
+        doEXIF(file,fcnt);
+        //Add an event to show exif data on double click
+		document.getElementById("img"+fcnt).ondblclick = function () {
+		    EXIF.getData(file, function() { 
+		    	alert(EXIF.pretty(file));
+		    	});
+			}
+        fcnt++;
+        };
+    };//for each file
+
+   
+}//function displayfilelistsasThumbs
+
+function displayFile(file,imgid) {
+//Function to initiate filereading into an img element
+  var img=document.getElementById(imgid);
+  var fReader= new FileReader();
+  fReader.onloadend = (function(img){
+                return function(){
+                    img.src = this.result;
+                };
+            })(img);  
+   fReader.readAsDataURL(file);
+} //Display File
+
+function clearfiles(){
+	//Remove all files
+	//Reset Counter
+	fcnt=0;
+	//Clear FILES element
+	document.getElementById('fileuploads').value="";
+	//Clear List
+    filestoUpload=[];
+    filedata=[];
+    //REMOVE MAP LAYERS
+    removeAllLayers();
+    //Clear HTML
+    filedrag.innerHTML="";
+    //HIDE UPLOAD Buttons
+   	$("#uploadbtn").addClass('hideit');
+	$("#clearbtn").addClass('hideit');
+
+}
+
+function formatImgEntry(file,imgprfx,id,src) {
+var flnm=file.name;
+var html="<div class=\"subpanel\">";
+   //ID 
+   html+= "<div style=\"display: inline-block;font-size: 14px;font-weight:bold;text-align:center;vertical-align:top;min-width: 25px; \">"+(id+1)+"</div>";
+   //THUMBNAIL DIV
+   html+= "<div class=\"divthmb\" id=\"file"+id+"\"><img id='"+imgprfx+id+"' src=\""+src+"\" class=\"imgthmb\" title=\""+file.name+"\n["+fmtbytes(file.size)+"]"+"\n"+file.type+"\"></div>";
+   
+   
+   //TODO - BUtton to select input from last image
+   
+
+   //IMAGE details DIV
+
+   //USER INPUT DIV 1
+   html+= "<div class=\"details\" style='width: 170px;'>";
+	    html+="<div class=\"elm\" style=\"padding-top: 5px;\"><div style='min-width: 35px;display: inline-block;'>Date<span class=\"enh\">*</span></div>"
+          //  html+="<input type=\"date\" id=\"Img_"+id+"_date\"><br>";	   //REPLACED with jquery datepicker
+            html+="<input type=\"text\" id=\"Img_"+id+"_date\" style=\"width: 90px;\" class='dtpck'><br>";
+            html+="<input type=\"hidden\" id=\"Img_"+id+"_dateF\" >";
+            html+="<div style='min-width: 35px;display: inline-block;'>Time</div><input type=\"time\" id=\"Img_"+id+"_time\"><br>";	   //TODO - use with jquery picker
+        html+="</div>";
+    	 //ANGLING PLATFORM :Img_id_angling
+   	     html+="<div class=\"elm\" >Platform: "
+  	        html+="<select id=\"Img_"+id+"_angling\" style='width: 105px;'>";
+            html+="<option value=\"none\">-Select-</option>";
+            html+="<option value=\"charter\">Charter boat</option>";
+            html+="<option value=\"private\">Private boat</option>";
+            html+="<option value=\"other\">Other boat</option>";
+            html+="<option value=\"shore\">Shore</option>";
+            html+="</select>";
+          html+="</div>";
+	     //FISH DIMENSIONS
+
+        html+="<div class=\"elm3 elm2\" style='float:left;max-width: 90px;'>";
+            //html+="<input type=\"text\" id=\"Img_"+id+"_port\" style='width: 156px;' placeholder='Enter Boat port..'>";
+	        html+="<div title=\"Length of fish in cm\">";
+	        html+="<div style='min-width: 44px;display: inline-block;'>Length </div><input type='text' id='Img_"+id+"_length'  style='width:20px;'>cm</div>"
+         	html+="<div title=\"Width of fish in cm\">";
+	        html+="<div style='min-width: 44px;display: inline-block;'>Width: </div><input type='text' id='Img_"+id+"_width'  style='width:20px;'>cm</div>"
+        	html+="<div title=\"Estimated Weight of fish in Pounds\">";
+	        html+="<div style='min-width: 44px;display: inline-block;'>Weight: </div><input type='text' id='Img_"+id+"_weight'  style='width:20px;'>lbs</div>"
+	    html+="</div>";
+        //5. SKATE ID & GENDER
+        html+="<div class=\"elm3 elm2\" style='max-width: 77px;float:right;'> ";
+            html+="<div title=\"If the images are of diffrent skates please indicate which skate the image is of.\">ID: <input type=\"number\" id=\"Img_"+id+"_skate\"  min=\"1\" max=\"5\" style='width:40px;'></div>"
+			html+="<div class=\"elm\" >Gender:<br>"
+				html+="<select id=\"Img_"+id+"_gender\" style='width: 60px;'>";
+				html+="<option value=\"N\"></option>";
+				html+="<option value=\"M\">Male</option>";
+				html+="<option value=\"F\">Female</option>";
+            	html+="<option value=\"U\">Don't know</option>";
+				html+="</select>";
+			html+="</div>";
+        html+="</div>";
+
+    html+="</div>";
+   //USER INPUT DIV 2
+   html+= "<div class=\"details\" style='width: 240px;'>";
+
+    //LOCATION: Img_id_location (TYPE)
+       //html+="<div style=\"padding-top: 5px;\">Where was photo taken ? <span class=\"enh\">*</span></div>"
+       html+="<div class=\"elm\" style='padding-top: 2px;'>Describe where the photo was taken: <span class=\"enh\">*</span> <br>"
+    	//3. Area: Img_id_area
+    	html+="<div class=\"elm\" id=\"loc_"+id+"_area\" style=\"display: block;padding-top: 2px\">";// Area:<br>";
+    	html+="<select id=\"Img_"+id+"_area\"  style='width: 230px;padding: 2px;'>";
+    	html+="<option value=\"none\">&lt;-- Select General Area --&gt;</option>";
+    	html+="<option value=\"Firth of Lorn - Insh\">Firth of Lorn – Insh</option>";
+    	html+="<option value=\"Firth of Lorn - Kerrera\">Firth of Lorn – Kerrera</option>";
+    	html+="<option value=\"Firth of Lorn - Mull shore\">Firth of Lorn – Mull shore</option>";
+    	html+="<option value=\"Firth of Lorn - Morven shore\">Firth of Lorn – Morven shore</option>";
+    	html+="<option value=\"Sound of Mull North\">Sound of Mull North</option>";
+    	html+="<option value=\"Sound of Mull South\">Sound of Mull South</option>";
+    	html+="<option value=\"Sound of Jura North\">Sound of Jura North</option>";
+    	html+="<option value=\"Sound of Jura South\">Sound of Jura South</option>";
+        html+="<option value=\"Other\">Other (Specify Below)</option>";
+    	html+="</select><br>";
+    	html+="</div>";
+
+
+            html+="<div class=\"elm\" style='padding-top: 1px;'>";
+  	 		html+="<select id=\"Img_"+id+"_location\" onChange=\"getLocation(this,"+id+")\" style='width: 230px;'>";
+     		html+="<option value=\"none\">&lt;-- Select Coordinate Entry --&gt;</option>";
+     		html+="<option value=\"coords\">Enter Coordinates or Click on Map</option>";
+     		html+="<option value=\"gps\">Coordinates from Image EXIF</option>";
+     		//html+="<option value=\"area\">Select Area</option>";
+     		html+="<option value=\"description\">Other location</option>";
+            html+="</select>";
+       html+="</div>";
+
+	    html+="<div class=\"elm\" id='loc_"+id+"_none' style=\"display: block;height: 21px;\">";//Description: <br>";
+    	html+="&nbsp";
+    	html+="</div>"
+
+
+    //1. Lat Long:  Img_id_x & Img_id_y
+       html+="<div class=\"elm\" id=\"loc_"+id+"_coords\" style=\"display: none;padding-top: 2px;\">"
+		    html+="<div style='display: inline-block;width: 25px;'>Lat:</div>";
+    		html+="<input type=\"text\" style='width: 50px;padding: 1px;' id=\"Img_"+id+"_x\" >";
+    		html+="<div style=\"display: inline-block;width: 35px;\">&nbsp;&nbsp;Long: </div>";
+    		html+="<input type=\"text\" style='width: 50px;padding: 1px;' id=\"Img_"+id+"_y\" >";
+    		html+="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a  href='javascript:void(0)'  onclick=\"getMap('Img_"+id+"_x','Img_"+id+"_y','"+flnm+"_map',-1,'Double Click to set location')\">Map</a>";
+       html+="</div>";
+	   //2. Lat Long from gps
+       html+="<div class=\"elm\" id=\"loc_"+id+"_gps\" style=\"display: none;padding-top: 2px;\">"
+                html+="<div style='display: inline-block;width: 25px;'>Lat:</div>";
+                html+="<input type=\"text\" style='width: 50px;padding: 1px;' id=\"Img_"+id+"_xgps\" disabled>";
+                html+="<div style=\"display: inline-block;width: 35px;\">&nbsp;&nbsp;Long: </div>";
+                html+="<input type=\"text\" style='width: 50px;padding: 1px;' id=\"Img_"+id+"_ygps\" disabled>";
+                html+="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a  href='javascript:void(0)'  onclick=\"getMap('Img_"+id+"_xgps','Img_"+id+"_ygps','"+flnm+"_gps',0,'GPS Location')\">Map</a>";
+      html+="</div>";
+
+	  //4. Describe : Img_id_desc
+       html+="<div class=\"elm\" id=\"loc_"+id+"_description\" style=\"display: none;padding-top: 2px;\">";//Description: <br>";
+            html+="<input type='text' size=\"25\" id=\"Img_"+id+"_desc\" style='width:230px;padding: 1px;' placeholder='Enter description here'>";
+       html+="</div>"
+       //other details
+    html+="<div class=\"elm\" style='padding-top: 2px'>Tags : ";
+    html+="<input type=\"text\" id=\"Img_"+id+"_tag\" style='width: 175px;padding: 1px;' placeholder='List any Tag numbers found'></div>";
+    html+="<div class=\"elm\">Any further details ( e.g. scars):<br>";
+    html+="<textarea id=\"Img_"+id+"_details\" style='width: 230px;height: 30px;'></textarea></div>";
+
+    html+="</div>";
+
+   html+="</form>";
+//THE END   
+html+="</div>";
+return html;
+}//function formatImgEntry
+
+function doEXIF(file,id) {
+//Get EXIF data - need to define callback so file gets loaded before it can read the data
+EXIF.getData(file, function() {
+       if (file.exifdata['ExifVersion']) {
+          //DATE
+		  if (file.exifdata["DateTimeOriginal"]) {file.exifdate=file.exifdata["DateTimeOriginal"];} else {file.exifdate=file.exifdata["DateTime"];}
+		  //DIMENSIONS
+		  file.exifdims={X: file.exifdata["PixelXDimension"], Y:file.exifdata["PixelYDimension"]};
+		  //Autofill DAte & Time on user form
+          var dt= file.exifdate;
+		  $("#Img_"+id+"_date").datepicker("setDate",new Date (parseInt(dt.substr(0,4)),parseInt(dt.substr(5,2))-1,parseInt(dt.substr(8,2))));
+
+		  //document.getElementById("Img_"+id+"_date").value=file.exifdate.substr(0,10).replace(":","-").replace(":","-");
+		  document.getElementById("Img_"+id+"_time").value=file.exifdate.substr(11,5);
+
+		  //GPS
+		  if (file.exifdata['GPSLatitude'] && file.exifdata['GPSLongitude'] && file.exifdata['GPSLatitudeRef'] && file.exifdata['GPSLongitudeRef']) {
+		            file.exifgps=readEXIFgps(file.exifdata);
+		            document.getElementById("Img_"+id+"_xgps").value=file.exifgps['lng'].toFixed(5);
+		            document.getElementById("Img_"+id+"_ygps").value=file.exifgps['lat'].toFixed(5);
+		            document.getElementById("Img_"+id+"_location").value="gps";
+		            getLocation(document.getElementById("Img_"+id+"_location"),id);
+		            //document.getElementById("loc_"+id+"_gps").style.display="block";
+		            addLayer(file.name+"_gps",file.exifgps['lng'],file.exifgps['lat']);
+		            addLayer(file.name+"_map",file.exifgps['lng'],file.exifgps['lat']);
+		  	  }
+		  else
+		    {addLayer(file.name+"_gps");addLayer(file.name+"_map");}	  
+ 		  }
+ 		else
+ 		  {addLayer(file.name+"_gps");addLayer(file.name+"_map");}  
+       });
+
+}
+
+function uploadProgress(evt) {
+//Progress of files upload - 
+        if (evt.lengthComputable) {
+            var percentComplete = Math.round(evt.loaded * 100 / evt.total);
+              if (percentComplete < 100)
+                { document.getElementById('prog').innerHTML = percentComplete.toString() + '%';
+                  while (evt.loaded >= tsize) {
+                      //TODO - PROGRESS BAR DISPLAY of EACH FILE ?
+                      $("#file"+ucnt).css({'background-color': '#CCFFCC'});
+        		      ucnt++;
+             		  tsize += filesizes[ucnt];
+			      } 
+                }
+            else     
+                 {
+                 document.getElementById('prog').innerHTML = 'Processing...';
+                 for (c=0;c<fcnt;c++) 
+	                 $("#file"+ucnt).css({'background-color': '#CCFFCC'});
+                 }
+             }
+        else {
+          document.getElementById('prog').innerHTML = 'unable to compute';
+          }
+}; //function uploadprogress
+
+function uploadfiles() {
+    //UPLOAD & PROCESS FILES - get user input
+	var msg="";
+    //1. new Path nam
+    var d=new Date();
+    var upfldr="upload_"+d.toISOString().substring(0, 19).replace('T', '_').replace(/:/g,"-");
+    var submitdt=d.toISOString().substring(0, 19).replace('T', ' ');
+    //2. The FORM data
+    var fd = new FormData();
+    var submitname=document.getElementById("submitter").value;
+    var submitemail=document.getElementById("emailaddr").value;
+	    //2a. destination path
+        fd.append("name",submitname);
+        fd.append("email",submitemail);
+	    fd.append("pth",upfldr);
+        fd.append("submitdt",submitdt);
+     var mpa1=document.getElementById("mpaCC").value;
+     var mpa2=document.getElementById("mpaF").value;
+	    fd.append("mpaCC",mpa1);
+    	fd.append("mpaFISH",mpa2);
+
+	    //2b. Dragged & selected files
+
+
+	var filedata={};
+    var x,y,desc;
+	for (idx=0;idx<filestoUpload.length;idx++) {
+	         var file=filestoUpload[idx];
+	         var dt=document.getElementById("Img_"+idx+"_dateF").value;
+             var tm=document.getElementById("Img_"+idx+"_time").value;
+
+	         if (dt=="") msg+="\nNo date given for Image "+(idx+1);
+	         else dt=dt+" "+tm;
+	         var ang=document.getElementById("Img_"+idx+"_angling").value;
+
+	         //var prt=document.getElementById("Img_"+idx+"_port").value;
+
+	         var skate=document.getElementById("Img_"+idx+"_skate").value;
+             var tag=document.getElementById("Img_"+idx+"_tag").value;
+             var detail=document.getElementById("Img_"+idx+"_details").value;
+
+		     var gender=document.getElementById("Img_"+idx+"_gender").value;
+             var width=document.getElementById("Img_"+idx+"_width").value;
+		     var length=document.getElementById("Img_"+idx+"_length").value;
+             var weight=document.getElementById("Img_"+idx+"_weight").value;
+
+             // NOT FOR NOW var living=document.getElementById("Img_"+idx+"_living").value;
+		     var living="Y";
+
+	        //TODO: CHECK then append to file object ? Img_IDX_date, Img_IDX_angling, Img_IDX_port,Img_IDX_Location
+	        //Location
+            desc=$("#Img_"+idx+"_area").val();
+            if (desc=="none") msg+="\nPlease select Area where Image "+(idx+1)+"was taken ";
+	         var loc=document.getElementById("Img_"+idx+"_location").value;
+              x=null;y=null;
+             switch(loc) {
+                case "coords": x=document.getElementById("Img_"+idx+"_x").value;y=document.getElementById("Img_"+idx+"_y").value; break;
+                case "gps": x=document.getElementById("Img_"+idx+"_xgps").value;y=document.getElementById("Img_"+idx+"_ygps").value; break;
+                case "map":x=document.getElementById("Img_"+idx+"_xmap").value;y=document.getElementById("Img_"+idx+"_ymap").value; break;
+                //case "area": desc=$("#Img_"+idx+"_area").val(); break;
+                case "description": desc+=" : "+document.getElementById("Img_"+idx+"_desc").value; break;
+				case "none":desc="No location given"; x="";y=""; msg+="\nNo location given for Image "+(idx+1);
+			 }	   	         
+	        filedata[file.name.toLowerCase()]={filename: file.name.toLowerCase(),date_taken: dt,
+				                                platform: ang,
+				                                //port: prt,
+				                                skate: skate,gender: gender,
+				                                location_type: loc, location_description: desc,longitude: x,latitude: y,
+				                                tags_seen: tag,details: detail,living: living,
+				                                width: width,length: length,weight: weight};
+
+	        fd.append("imagefiles[]", file);	
+	        
+	        }
+	//Need to define thedata types being passed
+	filedata['types']={filename: "s",date_taken: "s", platform: "s",
+		       //port: "s",
+		       skate: "i",gender: "s",
+		       location_type: "s", location_description: "s",longitude: "d",latitude: "d",
+		       tags_seen: "s",details: "s",living: "i",
+		       width: "i",length: "i",weight: "i"};
+    fd.append("filedata",JSON.stringify(filedata));
+
+   // if (submitname=="" || submitemail=="" ) {
+   //     msg="Please ensure you enter your name and email !\n"+msg;
+   //  }
+
+    if (msg !=""){
+        alert(msg);
+        return;
+	}
+
+
+    //2c. FINAL CHECK
+	     //TODO Check email adress "emailaddr"  if chkbox "nocomms" checked
+	//3 Initialize Counter	 
+	tsize=filesizes[0]; //for counter  
+	//AJAX !!!
+	$.ajax({ url: "include/processimagesdb.php", type: "POST",
+	         data: fd, datatype: "json",
+	         xhr: function() {
+                var myXhr = $.ajaxSettings.xhr();
+                if(myXhr.upload){
+                    myXhr.upload.addEventListener('progress',uploadProgress, false);
+                }
+                return myXhr;
+                },
+	         cache: false, contentType: false, processData: false,
+	         success: function (data) {
+					  console.log(data);
+ 	                  if(data['cnt']) {   
+						  $("#hupload").css({'display': 'none'});
+						  $("#fileupload").css({'display': 'none'});
+						  $("#clearbtn").css({'display': 'none'});
+						  $("#uploadbtn").css({'display': 'none'});
+						  $("#dcontact").css({'display': 'none'});
+						  document.getElementById('prog').innerHTML = "<h3 style=\"color: red;\">Files Uploaded - THANK YOU !</h3>";
+						  }
+					  else	  
+					      {document.getElementById('prog').innerHTML = "<h3 style=\"color: red;\">ERROR uploading - please try again or email: <a href=\"mailto: skates@sams.ac.uk\">skates@sams.ac.uk</a></h3><br />";}
+					  }, //success
+			 error: function(xhr, textStatus, errorThrown) {		  
+                    console.log('ajax loading error...'+textStatus+"\n"+errorThrown);
+                   return false;
+                   }, //error
+             }); //ajax
+}; //function uploadfiles
+
+
+
+</script>
+</head>
+
+<body>
+<div id="page">
+  <div id="view">
+   <!-- TODO Better Banner Image-->  
+    <div id="banner" >
+		  <div id="logo"></div>
+		  <div id="banner-content"  >
+			  <h1>SkateSpotter     <span style="color: #ff1a29;">Upload</span></h1>
+   	 	     <h3>Common Skate Photo-Identification Database for Scotland</h3>	
+          </div>
+    </div>
+
+	  <div id="menu">
+		  <a class="menubtn" href="index.html">Home</a><a class="menubtn" href="news.html">News</a><a class="menubtn" href="news.html">News</a><a class="menubtn"  href="guide.html">Guide</a><a class="menubtnSel" href="javascript:void(0)">Upload</a><a class="menubtn" href="gallery.php">Gallery</a>
+	  </div>
+
+    <div id="infopanel" class="panel">
+    	<div style="vertical-align: middle;">
+    		<h1 style="display:inline-block;font-size: 20px;">Please use this page to upload your Skate Photographs</h1><br>
+			<div style="font-size: 10px;padding-bottom: 5px;">Alternatively you can email them to <a href="mailto: skates@sams.ac.uk">skates@sams.ac.uk</a></div>
+    	</div>
+		<div style="padding-top:5px;padding-bottom: 5px;">
+			For advice on how to take the best photo of your skate, click <A href="https://www.nature.scot/sites/default/files/2017-12/Guidance%20Poster%20-%20how%20to%20take%20a%20good%20photo%20of%20a%20skate%20for%20ID.pdf">here</A>.
+		</div>
+
+    	<div style="vertical-align: middle;">
+     		We will treat any information you give us as confidential. &nbsp;&nbsp;&nbsp;
+     		<button id="datamsg">How we will use your information.</button><br />
+        	<div id="datamsgpanel" class="modal-main" >
+          		<div class="modal-content">
+               		<span class="close" id="dataclose">&times;</span>
+               			<h1> DATA PROTECTION STATEMENT</h1>
+               			<p>We will only use the information you have supplied for the purposes of this project. 
+    		   				We will not use any contact details you supply for anything other than to contact you about your images, 
+    		   				unless you specify otherwise.</p>
+     		   			<p>Please note, most digital images these days contain a header that records such information as camera type, shutter speeds, aperture, focal length etc. plus date, time and sometimes location.
+							If this information exists in the header of the uploaded photo, this system will try to extract the date & time and location from it,
+			    		   however you have the opportunity to to provide a more general location, if you would rather we did not have the precise coordinates.</p>
+    		 			<p>All photographs will be cropped to remove any identifying features of individuals, and where this is not possible facial featutes will be blurred or removed</p>
+					     <p><a href="docs/SkateSpotter%20privacy%20policy_v1%203_SJG_JD.pdf"> Full Privacy Policy</a></p>
+
+          		</div>
+        	</div>
+     	</div>
+
+     	<br />
+        <div  >
+          <div id="dcontact">
+         	<div  style="vertical-align:middle">
+                  <span style="color:green;font-size:14px;font-weight: bold;">Please enter your Name and Email address: </span>
+ 				<br > <span style="color:#ffa349;font-weight:bold;font-size: 12px;">By entering your name & email, you agree to allow us to contact you if we so require in regards to any
+				                          queries we have about the images. We will not contact you for any other purpose</span>
+				<br /><span style="color:red;font-weight:bold;font-size: 12px;">If you do not wish this to happen, DO NOT ENTER your email address and name</span>
+				<br />
+
+                  Name:<input type="text" size="40" id="submitter"/> &nbsp;&nbsp;
+                  Email: <input type="email" size="40" id="emailaddr"/><br />
+            </div>
+			<div style="padding-top: 5px;font-size: 12px;">
+				<span style="color: green;">The following questions are optional:   </span><br>
+				Have you read the <a href="guide.html" target="_blank">SNH Skate Handling Best Practice Guide </a>?  <SELECT id="mpaCC"><option value="-"></option><option value="Y">Yes</option><option value="N">No</option></SELECT><br>
+				If you fish in the Loch Sunart to the Sound of Jura MPA about how many days do you fish there per year? <input id="mpaF" type="text" style="width: 20px">
+			</div>
+
+           </div> 
+		</div>
+    </div>
+         
+    <div id="uploadpanel" class="panel"> 
+    
+    
+ 
+    <form enctype="multipart/form-data" method="post"  id="uploadbox" style="padding: 10px 10px;">
+           <!-- MUltiple file upload - hide it to diable file count display -->
+           <!-- reset on click (DISABLED) <input type="file" name="imagefiles[]" multiple="multiple" accept="image/*" onClick="this.form.reset()" onchange="fileselected()" id="fileuploads" style="display:none;"/>-->
+           <input type="file" name="imagefiles[]" multiple="multiple" accept="image/*" id="fileuploads" style="display:none;"/>
+           <!-- Use this button to activate the file selected from the previous hidden input -->
+           <div id="fileupload"><input type="button" value="Add Images from your device..." onclick="document.getElementById('fileuploads').click();" /> <b>... or Drag and drop into box below</b></div>
+
+		<div style="font-size: 10px;padding-top:5px;">
+			<span style="color: red;"><i>Please Enter coordinates: <b>These will only be used internally by SNH and will not be displayed on this website.</b></i></span><br>
+			    <i>If you are uploading images of several different skates, please use the "ID" field to give each a diffrent ID.</i><br>
+				<span class="enh">*</span> Indicates Mandatory field., all others are optional
+		</div>
+		<div id="prog">&nbsp;</div>
+		   <!-- Display area for files to be uploaded -->	
+           <div id="filelist"></div>
+           <!-- Stats\Progress display -->
+           <div id="prog">&nbsp;</div>
+
+		<!-- Button to upload the files -->
+           <input type="button" id="uploadbtn" onclick="uploadfiles()" value="Upload files" />
+           <input type="button" id="clearbtn" onclick="clearfiles()" value="Clear files" /><br /> <br />
+     </form>
+
+
+   </div> 
+   
+   <div class="panel" style="border-top: 1px silver solid;border-bottom: 1px silver solid;">
+  		<div class="divlogos"><img class="logos" src="images/SAMS%20logo.png" /></div>
+        <div class="divlogos"><img class="logos" src="images/SNH.png" /></div>
+        <!--<div class="divlogos"><img class="logos" src="images/SSACN.png" /></div>-->
+   </div>
+
+
+  </div>      
+</div>
+<div id="mappanel" class="modal-main" >
+	<div class="modal-image">
+		<h3 style="display: inline-block" id="maptitle">Click Approximate Location on Map</h3>
+		<span class="close" id="mapclose">&times;</span>
+		<div id="mapbox" class="map" style="width:600px;height:580px;">
+			<div id="info"></div>
+		</div>
+	</div>
+</div>
+</body> 
+
+
+<script language="javascript">
+//INITIALIZE
+
+//1. Set the drag & drappoing stuff ( needs to be at end so can refernce rendered elements)
+Init();
+
+
+//2. SET ANY MODAL MESSAGES
+// Get the Data Protection Message
+var databtn = document.getElementById("datamsg");
+var datamodal = document.getElementById('datamsgpanel');
+var dataclose = document.getElementById('dataclose');
+databtn.onclick = function() {datamodal.style.display = "block";}
+dataclose.onclick=function(){datamodal.style.display ="none"}
+// Get the Why messahe
+//var whybtn = document.getElementById("whymsg");
+//var whymodal = document.getElementById('whymsgpanel');
+//var whyclose = document.getElementById('whyclose');
+//whybtn.onclick = function() {whymodal.style.display = "block";}
+//whyclose.onclick=function() {whymodal.style.display ="none"}
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function(event) { 
+		if (event.target == datamodal) {datamodal.style.display = "none";}
+		//if (event.target == whymodal) {whymodal.style.display = "none";}
+		}
+
+		
+
+//3. SET SIZE OF PAGE DEPENDING ON SCREEN SIZE
+var swd=screen.width;
+if (swd> 1024)
+   $("#view").css({'width': '1024px'});
+else if (swd> 720)  
+   $("#view").css({'width': '720px'});
+else   	
+   $("#view").css({'width': '640px'});	
+</script>
+
+<!-- MAPPING STUFF -->
+<style type="text/css">
+#mapbox  .ol-zoom {left: auto;right: 7px;}
+#mapbox  .ol-mouse-position {width: 100px; height: 50px;left: 25px;bottom:10px;
+
+#info {position: absolute;height: 1px; width: 1px; z-index: 1000; }
+       .tooltip.in { opacity: 1; filter: alpha(opacity=100); }
+       .tooltip.top .tooltip-arrow { border-top-color: white; }
+       .tooltip-inner { border: 2px solid white;}
+
+</style>
+<script language="javascript">
+//OPENLAYERS MAPPING
+var map=document.getElementById('mappanel');
+document.getElementById('mapclose').onclick=function(){
+		map.style.display ="none";
+		//Hide all but the base layer
+		olmap.getLayers().forEach(function (layer) {
+            if (layer.get('name') != "OSM") {layer.setVisible(false)};
+            });
+		}
+
+var imageID=0;
+
+function getMap(elX,elY,flnm,allowClick,txt) {
+    document.getElementById('maptitle').innerHTML=txt+" for Image "+flnm;	
+    map.style.display = "block";
+    //show the relavent layer & Center the map on it
+    olmap.getLayers().forEach(function (layer) {
+            if (layer.get('name') == flnm ) {layer.setVisible(true)};
+            });
+    //Add dbl click event to add points
+    olmap.on('dblclick', function(evt) {
+            if(!allowClick) return;
+	        var coords=ol.proj.transform(evt.coordinate,crs,"EPSG:4326");
+	        setPoint(flnm,coords[0],coords[1],elX,elY); 
+	         });
+	centreLayer(flnm);         
+    olmap.updateSize();
+
+}
+
+
+
+
+//1 Map Defaults
+var mapLayers=[];
+var crs="EPSG:3857";
+
+//2. Background Map
+var OSMlayer = new ol.layer.Tile({
+                 name: "OSM",
+                 visible: true, 
+                 preload: 0, 
+                 source: new ol.source.OSM()
+                 })
+mapLayers.push(OSMlayer);
+
+//3.Point Layer for IMage locations
+//3a Style for points
+var pntstyle = new ol.style.Style({
+	     			image: new ol.style.Circle({
+	     				   radius: 5,
+	     				   fill: new ol.style.Fill({color: '#FF0000'}),
+	     				   stroke: new ol.style.Stroke({color: '#bada55', width: 0.5 })
+	     				   })
+	     		     });                 
+var pntstyle2 = new ol.style.Style({
+	     			image: new ol.style.Circle({
+	     				   radius: 5,
+	     				   fill: new ol.style.Fill({color: '#FF00FF'}),
+	     				   stroke: new ol.style.Stroke({color: '#bada55', width: 0.5 })
+	     				   })
+	     		     });                     
+//4. The MAP
+var olmap = new ol.Map({
+ 			target: 'mapbox',
+        	layers: mapLayers,
+        	loadTilesWhileInteracting: true,
+        	view: new ol.View({
+          			projection: crs,           	
+          			center: ol.proj.fromLonLat([-5.5,56.3],crs),   
+          			zoom: 8
+           			})
+        	});                 
+//5 MAP FEATURES
+//5a Coordinates display        	
+var mousePositionControl = new ol.control.MousePosition({coordinateFormat: ol.coordinate.createStringXY(4), projection: 'EPSG:4326', undefinedHTML: '&nbsp;'});
+olmap.addControl(mousePositionControl);
+//5b disable Double Click ZOOM
+var dblClickInteraction;
+olmap.getInteractions().getArray().forEach(function(interaction) {if (interaction instanceof ol.interaction.DoubleClickZoom) {dblClickInteraction = interaction;}});
+olmap.removeInteraction(dblClickInteraction);
+
+
+function setPoint(flnm,x,y,elX,elY){
+//CREATE POINT ( overwrite) in specified layer
+//Get the right layer
+var selLayer;
+olmap.getLayers().forEach(function (layer) {
+            if (layer.get('name') == flnm) {selLayer=layer;}
+            });
+//Create feature            
+var features=[];
+if (x && y) {features.push(addFeature(flnm,x,y)); }
+var imgCoords=new ol.source.Vector({ features: features});            
+//Overwrite existing source             
+var src=selLayer.setSource(imgCoords);
+if (elX && elY) {
+	//UPdate element
+	document.getElementById(elX).value=x.toFixed(5);
+	document.getElementById(elY).value=y.toFixed(5);
+	}
+} //setPoint
+
+
+function addLayer(flnm,x,y) {
+//
+//var useStyle2= flnm.endsWith("gps");
+var useStyle2= flnm.match("/gps$/");  //IE11 compatibility
+//Add NEW LAYER ( with optional point)
+var features=[];
+//Add mew layet
+if (x && y) {features.push(addFeature(flnm,x,y)); }
+
+//3b. Vector Source for points
+var imgCoords=new ol.source.Vector({ features: features}); //EMPTY to start with
+
+//3c. Layer for points
+var  imgLocations= new ol.layer.Vector({
+		        name: flnm,
+	            visible: false, 
+		        projection: crs,
+			    source: imgCoords,
+			    style: (useStyle2?pntstyle:pntstyle2)
+			    })
+			    
+mapLayers[flnm]=imgLocations;
+olmap.addLayer(mapLayers[flnm]);
+
+} //function addLAyer
+
+function addFeature (flnm,x,y) {
+   //Create a feature with the specified coords - add filename as an atribute
+   var ftr= new ol.Feature({ geometry:  new ol.geom.Point(ol.proj.fromLonLat([x,y],crs)), filename: flnm});
+   return ftr;   
+} //funtion addFeature
+
+
+function centreLayer(flnm) {
+//Centre layer on first feature
+var selLayer;
+olmap.getLayers().forEach(function (layer) {
+            if (layer.get('name') == flnm) {selLayer=layer;}
+            });
+if (selLayer) {            
+	var feature=selLayer.getSource().getFeatures();
+	if (feature[0]) {
+        olmap.getView().setCenter(feature[0].getGeometry().getCoordinates());
+		}
+	}
+
+}
+
+function removeAllLayers() {
+//Remove all but the base layer
+olmap.getLayers().forEach(function (layer) {
+            if (layer.get('name') != "OSM") {olmap.removeLayer(layer)};
+            });
+} //function removeAllLayers
+
+
+</script>
+
+<!-- UTILS -->
+<script language="javascript">
+
+function getLocation(sel, id) {
+    var selected=sel.options[sel.selectedIndex].value;
+
+    document.getElementById("loc_"+id+"_none").style.display=(selected=="none"?"block":"none");
+	document.getElementById("loc_"+id+"_coords").style.display=(selected=="coords"?"block":"none");
+	document.getElementById("loc_"+id+"_gps").style.display=(selected=="gps"?"block":"none");
+	//document.getElementById("loc_"+id+"_area").style.display=(selected=="area"?"block":"none");
+	document.getElementById("loc_"+id+"_description").style.display=(selected=="description"?"block":"none");
+
+
+
+
+
+
+} //getlocation
+
+function fmtbytes(fileSizeInBytes) {
+    //Format bytes as size
+    var i = -1;
+    var byteUnits = [' kB', ' MB', ' GB', ' TB', 'PB', 'EB', 'ZB', 'YB'];
+    do {
+        fileSizeInBytes = fileSizeInBytes / 1024;
+        i++;
+    } while (fileSizeInBytes > 1024);
+
+    return Math.max(fileSizeInBytes, 0.1).toFixed(1) + byteUnits[i];
+};
+
+function readEXIFgps(exif){
+        if (exif['GPSLatitude'] && exif['GPSLongitude'] && exif['GPSLatitudeRef'] && exif['GPSLongitudeRef']) {
+
+            var GPSLatRef  = exif['GPSLatitudeRef'].toLowerCase();
+            var GPSLngRef = exif['GPSLongitudeRef'].toLowerCase();
+			
+			var gpsLat=exif['GPSLatitude'];
+			var gpsLng=exif['GPSLongitude'];
+
+            var lat_degrees = gpsLat[0]['numerator'] / gpsLat[0]['denominator'];
+            var lat_minutes = gpsLat[1]['numerator'] / gpsLat[1]['denominator'];
+            var lat_seconds = gpsLat[2]['numerator'] / gpsLat[2]['denominator'];
+            var lng_degrees = gpsLng[0]['numerator'] / gpsLng[0]['denominator'];
+            var lng_minutes = gpsLng[1]['numerator'] / gpsLng[1]['denominator'];
+            var lng_seconds = gpsLng[2]['numerator'] / gpsLng[2]['denominator'];
+
+            var lat = lat_degrees+(((lat_minutes*60)+(lat_seconds))/3600);
+            var lng = lng_degrees+(((lng_minutes*60)+(lng_seconds))/3600);
+
+            //If the latitude is South, make it negative. 
+            //If the longitude is west, make it negative
+            lat= lat * (GPSLatRef  == 's' ? -1 : 1);
+            lng= lng * (GPSLngRef == 'w' ? -1 : 1);
+
+            if (exif['GPSDateStamp']) {dt= exif['GPSDateStamp'];}
+            
+            return {lat: lat,lng: lng,date:dt};
+		}
+            
+  }           
+
+
+</script>
+</html>
