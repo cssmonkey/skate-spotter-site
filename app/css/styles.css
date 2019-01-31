@@ -59,7 +59,7 @@ body {
 
 .page-content-block {
     background: #fff;
-    padding: 3rem 2rem;
+    padding: 4rem 2rem;
     margin-bottom: 3rem;
     border: 2px solid rgba(218,223,225, .8);
     border-radius: 2px;
@@ -149,11 +149,18 @@ body {
 
 /* ---- 04. Headings */
 
-h1 {
+h1, h2, h3 {
     font-family: 'Roboto Slab', serif;
-    font-weight: 700;
+    font-weight: normal;
     margin-bottom: .6em;
 }
+
+h2, h3 {
+    margin-top: 1.6em;
+}
+
+
+
 
 /* ---- 05. Upload Component */
 
@@ -169,7 +176,7 @@ h1 {
 .upload-component-dropzone {
     border: 4px dashed rgba(16, 183, 206, .8);
     border-radius: 2px;
-    min-height: 260px;
+    min-height: 300px;
     display: flex;
     justify-content: center;
     flex-direction: column;
@@ -302,9 +309,9 @@ h1 {
     .upload-component-intro span.upload-component-large-text {
         font-size: 1.4rem;
     }
-
     .upload-component.is-active .upload-component-process-stage-inner {
-        padding: 3.5em 3em 3em;
+        padding: 3.5em 1em 3em;
+        max-height: calc(100vh - 20px);
     }
 }
 
@@ -312,16 +319,34 @@ h1 {
 .upload-component-filelist .upload-item {
     display: flex;
     align-items: flex-start;
+    flex-direction: column;
     margin-bottom: 2rem;
 }
 .upload-component-filelist .upload-item:last-child {
     margin-bottom: 0;
 }
+.upload-component-filelist .upload-item-thumbnail-container {
+    width: 100%;
+    height: 220px;  
+    flex: none;
+    margin-bottom: 30px;
+}
 .upload-component-filelist .upload-item-thumbnail {
     display: block;
-    width: 300px;
-    flex: none;
-    margin-right: 30px;
+    max-width: 100%;
+    max-height: 100%;   
+    margin: 0 auto;
+}
+
+@media screen and (min-width: 768px) {
+    .upload-component-filelist .upload-item {
+        flex-direction: row;
+    }
+    .upload-component-filelist .upload-item-thumbnail-container {
+        width: 220px;
+        margin-bottom: 0;
+        margin-right: 30px;
+    }
 }
 
 /* ---- Form fields */
@@ -394,6 +419,14 @@ label {
     display: block;
 }
 
+.embedded-image {
+    max-width: 100%;
+    margin: 8px auto 20px;
+}
+.embedded-image-block {
+    display: block;
+}
+
 @media screen and (min-width: 768px) {
     .banner-image .desktop-image {
         display: block;
@@ -404,6 +437,16 @@ label {
     .richtext h1 {
         text-align: center;
         margin-bottom: 1.2em;
+    }
+    .embedded-image {
+        float: left;
+        max-width: 180px;
+        margin: 8px 20px 20px 0;
+    }
+    .embedded-image-block {
+        float: none;
+        max-width: 100%;
+        margin: 8px auto 20px;
     }
 }
 
@@ -628,6 +671,13 @@ label {
 .form-row {
     margin-top: 20px;
     margin-bottom: 20px;
+}
+.form-row:first-child {
+    margin-top: 0;
+}
+
+.custom-select {
+    height: auto;
 }
 
 @media screen and (min-width: 768px) {
