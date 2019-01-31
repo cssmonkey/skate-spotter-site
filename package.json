@@ -1,7 +1,7 @@
 {
-  "name": "bs-recipes-server",
+  "name": "skate-spotter",
   "version": "1.0.0",
-  "description": "Server example",
+  "description": "Static website build",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
