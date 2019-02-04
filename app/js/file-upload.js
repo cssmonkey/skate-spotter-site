@@ -127,8 +127,10 @@ window.APP = (function (module, $) {
           alert("File " + files[idx].name + " is not an accepted image format !"); 
         }                        
       }
-      
+    
       uploadFiles.init(newFiles);
+
+      $('body').addClass('show-upload-modal');
 
       if(shouldDisplayDataCapture) {
         displayFilesToUpload()
@@ -152,6 +154,8 @@ window.APP = (function (module, $) {
       $uploadComponent
         .removeClass('show-data-capture')
         .addClass('show-files-to-upload');
+        module.loader.start('Loading', true);
+      updateUploadIndicatorText();
     }
 
     function clearFiles() {
@@ -165,11 +169,12 @@ window.APP = (function (module, $) {
       //REMOVE MAP LAYERS
       //removeAllMapLayers();
       //Clear HTML
-      $('.upload-component-filelist', $uploadComponent).html('');
+      $('.upload-component-filelist-inner', $uploadComponent).html('');
 
       shouldDisplayDataCapture = false;
 
       $uploadComponent.removeClass('is-active show-data-capture show-files-to-upload');
+      $('body').removeClass('show-upload-modal');
     }
 
     return {

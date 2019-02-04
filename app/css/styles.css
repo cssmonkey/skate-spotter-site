@@ -164,6 +164,10 @@ h2, h3 {
 
 /* ---- 05. Upload Component */
 
+body.show-upload-modal {
+    overflow: hidden;
+}
+
 .header + .page-content > .upload-component {
     margin-top: -2rem;
 }
@@ -262,11 +266,36 @@ h2, h3 {
     background-color: #fff;
     border-radius: 2px;
     flex-basis: 880px;
-    padding: 4em 2em 2em;
     max-height: calc(100vh - 100px);
     max-width: calc(100vw - 20px);
     overflow: auto;
+    display: flex;
+    flex-direction: column;
 }
+
+.upload-component-process-stage-inner .stage {
+    flex: 1;
+    overflow: hidden;
+    overflow-y: auto;
+    padding: 1rem 2rem;
+    background-image: 
+        linear-gradient(to bottom, white, white), 
+        linear-gradient(to bottom, white, white), 
+        linear-gradient(to bottom, rgba(0, 0, 20, 0.1), rgba(255, 255, 255, 0)),
+        linear-gradient(to top, rgba(0, 0, 20, 0.1), rgba(255, 255, 255, 0));
+    background-position: top center, bottom center, top center, bottom center;
+    background-repeat: no-repeat;
+    background-color: white;
+    background-size: 100% 20px, 100% 20px, 100% 10px, 100% 10px;
+    background-attachment: local, local, scroll, scroll; 
+}
+
+.upload-component-process-stage-inner .upload-component-btn-bar,
+.upload-component-process-stage-inner .upload-controls {
+    flex: none;
+    padding: 1rem 2rem;
+}
+
 .upload-component.is-active:after {
     content: '';
     background-color: rgba(0,0,0,.4);
@@ -283,10 +312,18 @@ h2, h3 {
     display: block;
 }
 
+#data-capture-submit,
+#data-capture-skip,
+#filelist-submit {
+    display: none;
+}
+.upload-component.is-active.show-data-capture #data-capture-submit,
+.upload-component.is-active.show-data-capture #data-capture-skip,
+.upload-component.is-active.show-files-to-upload #filelist-submit {
+    display: inline-block;
+}
+
 .upload-controls {
-    position: absolute;
-    top: 14px;
-    left: auto;
     color: #868e96;
     font-size: 0.9rem;
 }
@@ -301,6 +338,10 @@ h2, h3 {
     text-decoration: underline;
 }
 
+.upload-component-btn-bar {
+    border-top: 1px solid rgba(218,223,225,.7);
+}
+
 @media screen and (min-width: 768px) {
     .upload-component {
         font-size: 1.2rem;
@@ -310,7 +351,6 @@ h2, h3 {
         font-size: 1.4rem;
     }
     .upload-component.is-active .upload-component-process-stage-inner {
-        padding: 3.5em 1em 3em;
         max-height: calc(100vh - 20px);
     }
 }
@@ -330,6 +370,10 @@ h2, h3 {
     height: 220px;  
     flex: none;
     margin-bottom: 30px;
+    background-color: #f6f6f6;
+    display: flex;
+    align-items: center;
+    border: 1px solid rgba(218,223,225,.7);
 }
 .upload-component-filelist .upload-item-thumbnail {
     display: block;
@@ -674,6 +718,11 @@ label {
 }
 .form-row:first-child {
     margin-top: 0;
+}
+
+.upload-component-filelist .form-row {
+    margin-top: 5px;
+    margin-bottom: 5px;
 }
 
 .custom-select {

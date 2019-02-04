@@ -2,7 +2,7 @@
 <html lang="en-GB">
 
 <head>
-    <title>SkateSpotter - component library</title>
+    <title>SkateSpotter</title>
 
     <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -94,8 +94,8 @@
 
                                 <div class='upload-component-process-stage animated fadeIn'>
                                     <div class='upload-component-process-stage-inner'>
-                                            <span class="upload-controls"><span class="upload-indicator"><span class="js-photo-count"></span> <span class="js-photo-text"></span> to upload</span> | <a href="#" class="upload-add-more-btn">Add more</a> | <a class="upload-add-clearfiles-btn" href="#">Cancel</a></span>
-                                        <div class='upload-component-data-capture'>
+                                        <span class="upload-controls"><span class="upload-indicator"><span class="js-photo-count"></span> <span class="js-photo-text"></span> to upload</span> | <a href="#" class="upload-add-more-btn">Add more</a> | <a class="upload-add-clearfiles-btn" href="#">Cancel</a></span>
+                                        <div class='upload-component-data-capture stage'>
                                             <h3 class="form-header">We'd like some extra info...</h3>
 
                                             <div class='form-fields'>
@@ -104,6 +104,7 @@
                                                     <div class="alert alert-warning" role="alert">
                                                         <p class='form-field-additional'>By entering your name &amp; email, you agree to allow us to contact you if we so require in regards to any queries we have about the images. We will not contact you for any other purpose.</p>
                                                         <p class='form-field-additional'>If you do not wish this to happen, DO NOT ENTER your email address and name </p>
+                                                        <p class='form-field-additional'>We will treat any information you give us as confidential. <a title="Link opens in a new window" href="/privacy-notice.html" target="_blank">How we will use your information.</a></p>
                                                     </div>
                                                     <div class='form-row'>
                                                         <div class='form-group col-md-6'>
@@ -139,21 +140,19 @@
                                                             <input class="form-control form-control-short" type='text' id='lochSunartDays'>
                                                         </div>
                                                     </div>
-                                          
-                                                    <div class='text-center'>
-                                                        <button class='btn btn-success btn-lg' id="data-capture-submit" type="button">Next</button>
-                                                        <button class='btn btn-light btn-lg' id="data-capture-skip" type="button">Skip</button>
-                                                    </div>
-                                                   
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class='upload-component-filelist'>
+                                        <div class='upload-component-filelist stage'>
                                             <h3 class="form-header">Tell us about your <span class="js-photo-text"></span>...</h3>
                                             <div class='upload-component-filelist-inner'></div>
-                                            <div class='text-center'>
-                                                <button class='btn btn-success btn-lg' id="filelist-submit" type="button">Upload</button>
-                                            </div>
+                                        </div>
+
+                                        <div class='upload-component-btn-bar text-center'>
+                                            <button class='btn btn-success btn-lg' id="filelist-submit" type="button">Upload</button>
+
+                                            <button class='btn btn-success btn-lg' id="data-capture-submit" type="button">Next</button>
+                                            <button class='btn btn-light btn-lg' id="data-capture-skip" type="button">Skip</button>
                                         </div>
                                     </div>
                                 </div>
