@@ -28,8 +28,6 @@ window.APP = (function (module, $) {
   var $clearFilesBtn;
   var filestoUpload = []; //Stores the files to upload
   var filesizes = [];
-  var fcnt=0; //number of files to upload 
-  var ucnt=0; //upload counter
   var shouldDisplayDataCapture = false;
 
   var uploadComponent = (function() {
@@ -128,7 +126,7 @@ window.APP = (function (module, $) {
         }                        
       }
     
-      uploadFiles.init(newFiles);
+      renderFilesForUpload.init(newFiles);
 
       $('body').addClass('show-upload-modal');
 
@@ -159,9 +157,6 @@ window.APP = (function (module, $) {
     }
 
     function clearFiles() {
-      //Remove all files
-      //Reset Counter
-      fcnt=0;
       //Clear FILES element
       $fileuploadsInput.val("");
       //Clear List
@@ -183,7 +178,7 @@ window.APP = (function (module, $) {
     
   }());
 
-  var uploadFiles = (function() {
+  var renderFilesForUpload = (function() {
 
     function init(files) {
       for (var idx = 0; idx < files.length; ++idx) {
@@ -191,15 +186,26 @@ window.APP = (function (module, $) {
 
         if (file) {
           var itemHtml = formatImgEntry(file, idx);
-          filesizes[fcnt]= file.size; //store for upload progress monitoring
+          filesizes[idx]= file.size; //store for upload progress monitoring
 
           //ADD HTML TO THE PAGE in Specfied element
           $('.upload-component-filelist-inner', $uploadComponent).prepend(itemHtml);
 
           //Update the thumbnail from the local file
           displayFile(file,"img_" + idx);
+        
+          // Setup DatePicker
+          module.datePicker.init('#Img_' + idx + '_date', '#Img_' + idx + '_dateF');
+          
+          handleLocationEntry()
+          
         }
       }
+    }
+
+    function handleLocationEntry() {
+
+
     }
 
     function formatImgEntry(file, index) {
@@ -209,19 +215,19 @@ window.APP = (function (module, $) {
         <div class="form-fields upload-item-details"> \
           <div class="form-row"> \
             <div class="form-group col-md-6"> \
-              <label for="Img_"' + index + '"_date">Date</label> \
-              <input type="text" id="Img_"' + index + '"_date" class="form-control datepicker"> \
-              <input type="hidden" id="Img_"' + index + '"_dateF" > \
+              <label for="Img_' + index + '_date">Date</label> \
+              <div class="datepicker-field-container"><input type="text" id="Img_' + index + '_date" class="form-control datepicker-field"></div> \
+              <input type="hidden" id="Img_' + index + '_dateF" > \
             </div> \
             <div class="form-group col-md-6"> \
-              <label for="Img_"' + index + '"_time">Time <span class="optional">(optional)</span></label> \
-              <input type="time" id="Img_"' + index + '"_time" class="form-control"> \
+              <label for="Img_' + index + '_time">Time <span class="optional">(optional)</span></label> \
+              <input type="time" id="Img_' + index + '_time" class="form-control form-control-short"> \
             </div> \
           </div> \
           <div class="form-row"> \
-            <div class="col-md-12"><label for="Img_"' + index + '"_area">Describe where the photo was taken</label></div> \
+            <div class="col-md-12"><label for="Img_' + index + '_area">Describe where the photo was taken</label></div> \
             <div class="form-group col-md-6"> \
-              <select id="Img_"' + index + '"_area" class="custom-select"> \
+              <select id="Img_' + index + '_area" class="custom-select"> \
                 <option value="none">Select General Area</option> \
                 <option value="Firth of Lorn - Insh">Firth of Lorn – Insh</option> \
                 <option value="Firth of Lorn - Kerrera">Firth of Lorn – Kerrera</option> \
@@ -235,7 +241,7 @@ window.APP = (function (module, $) {
               </select> \
             </div> \
             <div class="form-group col-md-6"> \
-              <select id="Img_"' + index + '"_location" class="custom-select"> \
+              <select id="Img_' + index + '_location" class="custom-select"> \
                 <option value="none">Select Coordinate Entry</option> \
                 <option value="coords">Enter Coordinates or Click on Map</option> \
                 <option value="gps">Coordinates from Image EXIF</option> \
@@ -243,9 +249,12 @@ window.APP = (function (module, $) {
             </div> \
           </div> \
           <div class="form-row"> \
+            <p>Location conditional fields go here</p> \
+          </div> \
+          <div class="form-row"> \
             <div class="form-group col-md-6"> \
-              <label for="Img_"' + index + '"_angling">Platform <span class="optional">(optional)</span></label> \
-              <select id="Img_"' + index + '"_angling" class="custom-select"> \
+              <label for="Img_' + index + '_angling">Platform <span class="optional">(optional)</span></label> \
+              <select id="Img_' + index + '_angling" class="custom-select"> \
                 <option value="none">Select</option> \
                 <option value="charter">Charter boat</option> \
                 <option value="private">Private boat</option> \
@@ -254,8 +263,8 @@ window.APP = (function (module, $) {
               </select> \
             </div> \
             <div class="form-group col-md-6"> \
-              <label for="Img_"' + index + '"_angling">Gender <span class="optional">(optional)</span></label> \
-              <select id="Img_"' + index + '"_gender" class="custom-select"> \
+              <label for="Img_' + index + '_angling">Gender <span class="optional">(optional)</span></label> \
+              <select id="Img_' + index + '_gender" class="custom-select"> \
                 <option value="N"></option> \
                 <option value="M">Male</option> \
                 <option value="F">Female</option> \
@@ -265,34 +274,34 @@ window.APP = (function (module, $) {
           </div> \
           <div class="form-row"> \
             <div class="form-group col-md-6"> \
-              <label for="Img_"' + index + '"_length">Length of fish in cm <span class="optional">(optional)</span></label> \
-              <input type="text" id="Img_"' + index + '"_length" class="form-control"> \
+              <label for="Img_' + index + '_length">Length of fish in cm <span class="optional">(optional)</span></label> \
+              <input type="text" id="Img_' + index + '_length" class="form-control"> \
             </div> \
             <div class="form-group col-md-6"> \
-              <label for="Img_"' + index + '"_width">Width of fish in cm <span class="optional">(optional)</span></label> \
-              <input type="text" id="Img_"' + index + '"_width" class="form-control"> \
+              <label for="Img_' + index + '_width">Width of fish in cm <span class="optional">(optional)</span></label> \
+              <input type="text" id="Img_' + index + '_width" class="form-control"> \
             </div> \
           </div> \
           <div class="form-row"> \
             <div class="form-group col-md-6"> \
-              <label for="Img_"' + index + '"_weight">Estimated weight in lbs <span class="optional">(optional)</span></label> \
-              <input type="text" id="Img_"' + index + '"_weight" class="form-control"> \
+              <label for="Img_' + index + '_weight">Estimated weight in lbs <span class="optional">(optional)</span></label> \
+              <input type="text" id="Img_' + index + '_weight" class="form-control"> \
             </div> \
             <div class="form-group col-md-6" title="If the images are of diffrent skates please indicate which skate the image is of."> \
-              <label for="Img_"' + index + '"_skate">ID <span class="optional">(optional)</span></label> \
-              <input type="number" id="Img_"' + index + '"_skate" min="1" max="5" class="form-control"> \
+              <label for="Img_' + index + '_skate">ID <span class="optional">(optional)</span></label> \
+              <input type="number" id="Img_' + index + '_skate" min="1" max="5" class="form-control"> \
             </div> \
           </div> \
           <div class="form-row"> \
             <div class="form-group col-md-6"> \
-              <label for="Img_"' + index + '"_tag">List any Tag numbers found <span class="optional">(optional)</span></label> \
-              <input type="text" id="Img_"' + index + '"_tag" class="form-control"> \
+              <label for="Img_' + index + '_tag">List any Tag numbers found <span class="optional">(optional)</span></label> \
+              <input type="text" id="Img_' + index + '_tag" class="form-control"> \
             </div> \
           </div> \
           <div class="form-row"> \
             <div class="form-group col-md-12"> \
-              <label for="Img_"' + index + '"_details">Any further details e.g. scars <span class="optional">(optional)</span></label> \
-              <textarea id="Img_"' + index + '"_details" class="form-control"></textarea> \
+              <label for="Img_' + index + '_details">Any further details e.g. scars <span class="optional">(optional)</span></label> \
+              <textarea id="Img_' + index + '_details" class="form-control"></textarea> \
             </div> \
           </div> \
         </div> \

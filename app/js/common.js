@@ -48,6 +48,52 @@ window.APP = (function (module, $) {
 
   module.loader = loader;
 
+  var datePicker = (function() {
+
+    $.datepicker.setDefaults({
+      dateFormat: 'dd-M-yy',
+      maxDate: new Date(),
+      changeMonth: true,
+      changeYear: true,
+      altFormat: "yy-mm-dd",
+      showOn: "both",
+      buttonImage: "/images/calendar.png",
+      buttonImageOnly: true
+    });
+
+    function init(dateFieldId, altFieldId) {
+      var $dateField = $(dateFieldId);
+
+       //check we have not already applied this !
+      if ($dateField.hasClass('hasDatepicker') === false) {
+          
+        $dateField.datepicker();
+
+        if(altFieldId)
+          $dateField.datepicker("option", "altField", altFieldId);
+
+        //fire change event if new date entered
+        $dateField.datepicker({
+          onSelect: function (d, i) {
+              if (d !== i.lastVal) {
+                  $(this).change();
+              }
+          }
+        }); 
+      }
+      else {
+        return null;
+      }
+    }
+
+    return {
+      init: init
+    }
+    
+  }());
+
+  module.datePicker = datePicker;
+
   return module;
     
 
