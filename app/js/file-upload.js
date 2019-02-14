@@ -249,7 +249,36 @@ window.APP = (function (module, $) {
             </div> \
           </div> \
           <div class="form-row"> \
-            <p>Location conditional fields go here</p> \
+            <div class="conditional-form-group" id="location_' + index + '_coords"> \
+              <div class="form-row"> \
+                <div class="form-group col-md-6"> \
+                  <label for="Img_' + index + '_x">Lat</label> \
+                  <input type="text" id="Img_' + index + '_x" class="form-control"> \
+                </div> \
+                <div class="form-group col-md-6"> \
+                  <label for="Img_' + index + '_y">Long</label> \
+                  <input type="text" id="Img_' + index + '_y" class="form-control"> \
+                </div> \
+                <button class="map-trigger" type="button" id="Img_' + index + '_coord-map-btn">Map</button> \
+              </div> \
+            </div> \
+            <div class="conditional-form-group" id="location_' + index + '_gps"> \
+              <div class="form-row"> \
+                <div class="form-group col-md-6"> \
+                  <label for="Img_' + index + '_xgps">Lat</label> \
+                  <input type="text" id="Img_' + index + '_x" class="form-control"> \
+                </div> \
+                <div class="form-group col-md-6"> \
+                  <label for="Img_' + index + '_ygps">Long</label> \
+                  <input type="text" id="Img_' + index + '_y" class="form-control"> \
+                </div> \
+                <button class="map-trigger" type="button" id="Img_' + index + '_gps-map-btn">Map</button> \
+              </div> \
+            </div> \
+            <div class="conditional-form-group" id="location_' + index + '_description"> \
+              <label for="Img_' + index + '_desc">Description of location <span class="optional">(optional)</span></label> \
+              <input type="text" id="Img_' + index + '_desc" class="form-control" /> \
+            </div> \
           </div> \
           <div class="form-row"> \
             <div class="form-group col-md-6"> \
