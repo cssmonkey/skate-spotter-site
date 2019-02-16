@@ -75,6 +75,20 @@ window.APP = (function (module, $) {
       });
     }
 
+    function conditionalFields() {
+      var $select = $('.conditional-select');
+      
+      $select.on('change', function() {
+        var fieldGroupId = $(this).data('fieldsid');
+        var $fieldGroupContainer = $('.conditional-form-groups[data-fieldsid="'+ fieldGroupId +'"]');
+        var selected = $(this).find('option:selected');
+        var $fieldsToShow = $('#' + selected.data('fields')); 
+
+        $('.conditional-form-group.is-active', $fieldGroupContainer).removeClass('is-active');
+        $fieldsToShow.addClass('is-active');
+      })
+    }
+
     function updateUploadIndicatorText() {
       var $text = $('.js-photo-text', $uploadComponent);
       var $countText = $('.js-photo-count');
@@ -127,6 +141,7 @@ window.APP = (function (module, $) {
       }
     
       renderFilesForUpload.init(newFiles);
+      conditionalFields();
 
       $('body').addClass('show-upload-modal');
 
@@ -196,8 +211,8 @@ window.APP = (function (module, $) {
         
           // Setup DatePicker
           module.datePicker.init('#Img_' + idx + '_date', '#Img_' + idx + '_dateF');
-          
-          handleLocationEntry()
+
+          handleLocationEntry();
           
         }
       }
@@ -216,7 +231,7 @@ window.APP = (function (module, $) {
           <div class="form-row"> \
             <div class="form-group col-md-6"> \
               <label for="Img_' + index + '_date">Date</label> \
-              <div class="datepicker-field-container"><input type="text" id="Img_' + index + '_date" class="form-control datepicker-field"></div> \
+              <div class="datepicker-field-container"><div class="datepicker-mask"></div><input type="text" id="Img_' + index + '_date" class="form-control datepicker-field"></div> \
               <input type="hidden" id="Img_' + index + '_dateF" > \
             </div> \
             <div class="form-group col-md-6"> \
@@ -241,43 +256,50 @@ window.APP = (function (module, $) {
               </select> \
             </div> \
             <div class="form-group col-md-6"> \
-              <select id="Img_' + index + '_location" class="custom-select"> \
+              <select id="Img_' + index + '_location" class="custom-select conditional-select" data-fieldsid="'+ index +'"> \
                 <option value="none">Select Coordinate Entry</option> \
-                <option value="coords">Enter Coordinates or Click on Map</option> \
-                <option value="gps">Coordinates from Image EXIF</option> \
+                <option value="coords" data-fields="location_' + index + '_coords">Enter Coordinates or Click on Map</option> \
+                <option value="gps" data-fields="location_' + index + '_gps">Coordinates from Image EXIF</option> \
+                <option value="description" data-fields="location_' + index + '_description">Other location</option> \
               </select> \
             </div> \
           </div> \
           <div class="form-row"> \
-            <div class="conditional-form-group" id="location_' + index + '_coords"> \
-              <div class="form-row"> \
-                <div class="form-group col-md-6"> \
-                  <label for="Img_' + index + '_x">Lat</label> \
-                  <input type="text" id="Img_' + index + '_x" class="form-control"> \
+            <div class="conditional-form-groups" data-fieldsid="'+ index +'"> \
+              <div class="conditional-form-group" id="location_' + index + '_coords"> \
+                <div class="form-row"> \
+                  <div class="col-md-4"> \
+                    <label for="Img_' + index + '_x">Lat</label> \
+                    <input type="text" id="Img_' + index + '_x" class="form-control"> \
+                  </div> \
+                  <div class="col-md-4"> \
+                    <label for="Img_' + index + '_y">Long</label> \
+                    <input type="text" id="Img_' + index + '_y" class="form-control"> \
+                  </div> \
+                  <div class="col-md-4 map-trigger-container"> \
+                    <button class="map-trigger" type="button" id="Img_' + index + '_coord-map-btn"><i class="fas fa-map-marker-alt"></i> Find on map</button> \
+                  </div> \
                 </div> \
-                <div class="form-group col-md-6"> \
-                  <label for="Img_' + index + '_y">Long</label> \
-                  <input type="text" id="Img_' + index + '_y" class="form-control"> \
-                </div> \
-                <button class="map-trigger" type="button" id="Img_' + index + '_coord-map-btn">Map</button> \
               </div> \
-            </div> \
-            <div class="conditional-form-group" id="location_' + index + '_gps"> \
-              <div class="form-row"> \
-                <div class="form-group col-md-6"> \
-                  <label for="Img_' + index + '_xgps">Lat</label> \
-                  <input type="text" id="Img_' + index + '_x" class="form-control"> \
+              <div class="conditional-form-group" id="location_' + index + '_gps"> \
+                <div class="form-row"> \
+                  <div class="col-md-4"> \
+                    <label for="Img_' + index + '_xgps">Lat</label> \
+                    <input type="text" id="Img_' + index + '_x" class="form-control"> \
+                  </div> \
+                  <div class="col-md-4"> \
+                    <label for="Img_' + index + '_ygps">Long</label> \
+                    <input type="text" id="Img_' + index + '_y" class="form-control"> \
+                  </div> \
+                  <div class="col-md-4 map-trigger-container"> \
+                    <button class="map-trigger" type="button" id="Img_' + index + '_gps-map-btn"><i class="fas fa-map-marker-alt"></i> Find on map</button> \
+                  </div> \
                 </div> \
-                <div class="form-group col-md-6"> \
-                  <label for="Img_' + index + '_ygps">Long</label> \
-                  <input type="text" id="Img_' + index + '_y" class="form-control"> \
-                </div> \
-                <button class="map-trigger" type="button" id="Img_' + index + '_gps-map-btn">Map</button> \
               </div> \
-            </div> \
-            <div class="conditional-form-group" id="location_' + index + '_description"> \
-              <label for="Img_' + index + '_desc">Description of location <span class="optional">(optional)</span></label> \
-              <input type="text" id="Img_' + index + '_desc" class="form-control" /> \
+              <div class="conditional-form-group" id="location_' + index + '_description"> \
+                <label for="Img_' + index + '_desc">Description of location <span class="optional">(optional)</span></label> \
+                <input type="text" id="Img_' + index + '_desc" class="form-control" /> \
+              </div> \
             </div> \
           </div> \
           <div class="form-row"> \
@@ -371,6 +393,7 @@ window.APP = (function (module, $) {
     $dataCaptureSkipBtn = $('#data-capture-skip', $uploadComponent);
 
     uploadComponent.init();
+ 
     module.loader.init($('.upload-component-process-stage-inner', $uploadComponent));
   });
 
