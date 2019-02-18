@@ -63,9 +63,6 @@ window.APP = (function (module, $) {
 
     function init(dateFieldId, altFieldId) {
       var $dateField = $(dateFieldId);
-      // overlay the datepicker input to prevent the virtual keyboard showing on mobiles
-      var $mask = $dateField.parent().find('.datepicker-mask');
-      var isOpen = false;
 
        //check we have not already applied this !
       if ($dateField.hasClass('hasDatepicker') === false) {
@@ -83,17 +80,6 @@ window.APP = (function (module, $) {
               }
           }
         }); 
-
-        $mask.on('click', function() {
-          if(isOpen) {
-            $dateField.datepicker('hide');
-            isOpen = false;
-          }
-          else {
-            $dateField.datepicker('show');
-            isOpen = true;
-          }
-        })
       }
       else {
         return null;

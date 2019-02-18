@@ -73,6 +73,8 @@ window.APP = (function (module, $) {
         displayFilesToUpload();
         shouldDisplayDataCapture = true;
       });
+
+      $uploadComponent.on('click', '.map-trigger', module.map.toggle);
     }
 
     function conditionalFields() {
@@ -231,7 +233,7 @@ window.APP = (function (module, $) {
           <div class="form-row"> \
             <div class="form-group col-md-6"> \
               <label for="Img_' + index + '_date">Date</label> \
-              <div class="datepicker-field-container"><div class="datepicker-mask"></div><input type="text" id="Img_' + index + '_date" class="form-control datepicker-field"></div> \
+              <div class="datepicker-field-container"><input readonly="readonly" type="text" id="Img_' + index + '_date" class="form-control datepicker-field"></div> \
               <input type="hidden" id="Img_' + index + '_dateF" > \
             </div> \
             <div class="form-group col-md-6"> \
@@ -392,9 +394,11 @@ window.APP = (function (module, $) {
     $dataCaptureBtn = $('#data-capture-submit', $uploadComponent);
     $dataCaptureSkipBtn = $('#data-capture-skip', $uploadComponent);
 
+    module.map.init();
     uploadComponent.init();
- 
+
     module.loader.init($('.upload-component-process-stage-inner', $uploadComponent));
+
   });
 
   return module;
