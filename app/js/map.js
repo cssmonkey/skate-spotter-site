@@ -19,6 +19,11 @@ window.APP = (function (module, $) {
             $('body').append(mapOverlay);
             $map = $('.map-overlay');
 
+            $map.on('click', '.map-overlay-close-btn', function(e) {
+                e.preventDefault();
+                hide();
+            })
+
         }
         
         function toggle(e) {
@@ -33,16 +38,12 @@ window.APP = (function (module, $) {
         }
 
         function show() {
-            $map.fadeIn(function() {
-                $(this).addClass('is-active');
-                isOpen = true;
-            });
+            $map.addClass('is-active');
+            isOpen = true;  
         }
         function hide() {
-            $map.fadeIn(function() {
-                $(this).removeClass('is-active');
-                isOpen = false;
-            });
+            $map.removeClass('is-active');
+            isOpen = false;
         }
 
         return {
