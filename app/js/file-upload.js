@@ -74,7 +74,23 @@ window.APP = (function (module, $) {
         shouldDisplayDataCapture = true;
       });
 
-      $uploadComponent.on('click', '.map-trigger', module.map.toggle);
+      $uploadComponent.on('click', '.map-trigger', function(e) {
+        e.preventDefault();
+        var latId = $(this).data('lat'),
+            longId = $(this).data('long'),
+            filename = $(this).data('file'),
+            allowClick = $(this).data('allowclick') * 1,
+            title = $(this).data('title');
+        
+        module.map.getMap(
+          latId,
+          longId,
+          filename,
+          allowClick,
+          title
+        );
+
+      })
     }
 
     function conditionalFields() {
@@ -169,7 +185,7 @@ window.APP = (function (module, $) {
       $uploadComponent
         .removeClass('show-data-capture')
         .addClass('show-files-to-upload');
-        module.loader.start('Loading', true);
+        module.loader.start('Loading', true, 750);
       updateUploadIndicatorText();
     }
 
@@ -279,7 +295,10 @@ window.APP = (function (module, $) {
                     <input type="text" id="Img_' + index + '_y" class="form-control"> \
                   </div> \
                   <div class="col-md-4 map-trigger-container"> \
-                    <button class="map-trigger" type="button" id="Img_' + index + '_coord-map-btn"><i class="fas fa-map-marker-alt"></i> Find on map</button> \
+                    <button class="map-trigger" type="button" id="Img_' + index + '_coord-map-btn" \
+                      data-lat="Img_' + index + '_x" data-long="Img_' + index + '_y" data-file="'+ file.name + '" data-allowclick="-1" data-title="Double click to set location"> \
+                      <i class="fas fa-map-marker-alt"></i> Find on map\
+                    </button> \
                   </div> \
                 </div> \
               </div> \
@@ -287,14 +306,17 @@ window.APP = (function (module, $) {
                 <div class="form-row"> \
                   <div class="col-md-4"> \
                     <label for="Img_' + index + '_xgps">Lat</label> \
-                    <input type="text" id="Img_' + index + '_x" class="form-control"> \
+                    <input type="text" id="Img_' + index + '_xgps" class="form-control"> \
                   </div> \
                   <div class="col-md-4"> \
                     <label for="Img_' + index + '_ygps">Long</label> \
-                    <input type="text" id="Img_' + index + '_y" class="form-control"> \
+                    <input type="text" id="Img_' + index + '_ygps" class="form-control"> \
                   </div> \
                   <div class="col-md-4 map-trigger-container"> \
-                    <button class="map-trigger" type="button" id="Img_' + index + '_gps-map-btn"><i class="fas fa-map-marker-alt"></i> Find on map</button> \
+                    <button class="map-trigger" type="button" id="Img_' + index + '_coord-map-btn" \
+                      data-lat="Img_' + index + '_xgps" data-long="Img_' + index + '_ygps" data-file="'+ file.name + '" data-allowclick="0" data-title="GPS location"> \
+                      <i class="fas fa-map-marker-alt"></i> Find on map\
+                    </button> \
                   </div> \
                 </div> \
               </div> \

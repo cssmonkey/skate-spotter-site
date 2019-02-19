@@ -19,9 +19,9 @@ window.APP = (function (module, $) {
       $context.addClass('loader-container').append($loader)
     }
 
-    function start(loadingMessage, fakeDelay) {
+    function start(loadingMessage, fakeDelay, duration) {
       var message = loadingMessage ? loadingMessage + '...' : 'Loading...';
-
+      var delayDuration = duration ? duration : 1500;
       $('.loader', $context)
         .addClass('is-active')
         .find('.loader-message').text(message);
@@ -29,7 +29,7 @@ window.APP = (function (module, $) {
       if(fakeDelay) {
         setTimeout(function() {
           stop();
-        }, 1500);
+        }, delayDuration);
       }
     }
 

@@ -108,6 +108,7 @@ html, body {
 body {
     display: flex;
     flex-direction: column;
+    overflow-x: hidden;
 }
 .header-and-content {
     flex: 1 0 auto;
@@ -698,7 +699,7 @@ label {
     background-color: #fff;
     border-radius: 2px;
     flex-basis: 880px;
-    height: calc(100vh - 20px);
+    height: calc(100vh - 100px);
     max-width: calc(100vw - 20px);
     overflow: auto;
     display: flex;
@@ -708,6 +709,7 @@ label {
 .map-overlay-title {
     flex: none;
     padding: 1rem 2rem;
+    margin: 0 30px 0 0; 
 }
 .map-overlay-close-btn {
     position: absolute;
@@ -728,6 +730,17 @@ label {
 .map-overlay .map {
     background: #e6e6e6;
     flex: 1;
+}
+
+#mapbox {
+    width: 602px;
+    height: 580px;
+}
+
+@media screen and (min-width: 768px) {
+    .map-panel {
+        height: calc(100vh - 20px);
+    }
 }
 
 
