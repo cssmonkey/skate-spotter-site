@@ -8,7 +8,7 @@ window.APP = (function (module, $) {
     var $context;
 
     function generateMarkup() {
-      var markup = '<div class="loader"><div class="loader-icon"><i class="fas fa-circle-notch fa-spin"></i></div><p class="loader-message"></p></div>';
+      var markup = '<div class="loader"><div class="spinner-border text-success" role="status"><span class="sr-only">Loading...</span></div><p class="loader-message"></p></div>';
       return $(markup);
     }
 

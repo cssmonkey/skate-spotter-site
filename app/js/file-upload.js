@@ -249,7 +249,7 @@ window.APP = (function (module, $) {
           <div class="form-row"> \
             <div class="form-group col-md-6"> \
               <label for="Img_' + index + '_date">Date</label> \
-              <div class="datepicker-field-container"><input readonly="readonly" type="text" id="Img_' + index + '_date" class="form-control datepicker-field"></div> \
+              <div class="datepicker-field-container"><input type="text" id="Img_' + index + '_date" class="form-control datepicker-field"></div> \
               <input type="hidden" id="Img_' + index + '_dateF" > \
             </div> \
             <div class="form-group col-md-6"> \
