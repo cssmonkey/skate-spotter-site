@@ -10,13 +10,30 @@ window.APP = (function (module, $) {
         var crs="EPSG:3857";
         var olmap;
 
+        // Point Layer for Image locations
+        // Style for points
+        var pntstyle = new ol.style.Style({
+            image: new ol.style.Circle({
+                radius: 5,
+                fill: new ol.style.Fill({color: '#FF0000'}),
+                stroke: new ol.style.Stroke({color: '#bada55', width: 0.5 })
+            })
+        });                 
+        var pntstyle2 = new ol.style.Style({
+            image: new ol.style.Circle({
+                radius: 5,
+                fill: new ol.style.Fill({color: '#FF00FF'}),
+                stroke: new ol.style.Stroke({color: '#bada55', width: 0.5 })
+            })
+        });    
+
         function init() {
             var mapOverlay = '\
             <div class="map-overlay"> \
                 <div class="map-panel"> \
                     <h4 class="map-overlay-title">Double click to set location</h4> \
                     <button type="button" class="map-overlay-close-btn"><i class="far fa-times-circle"></i> <span>Close</span></button> \
-                    <div class="map"><div id="mapbox"></div></div> \
+                    <div class="map"><div id="mapbox"><div id="mapbox-inner"></div></div></div> \
                 </div> \
             </div>';
             $('body').append(mapOverlay);
@@ -36,26 +53,9 @@ window.APP = (function (module, $) {
             })
             mapLayers.push(OSMlayer);
 
-            // Point Layer for Image locations
-            // Style for points
-            var pntstyle = new ol.style.Style({
-                image: new ol.style.Circle({
-                    radius: 5,
-                    fill: new ol.style.Fill({color: '#FF0000'}),
-                    stroke: new ol.style.Stroke({color: '#bada55', width: 0.5 })
-                })
-            });                 
-            var pntstyle2 = new ol.style.Style({
-                image: new ol.style.Circle({
-                    radius: 5,
-                    fill: new ol.style.Fill({color: '#FF00FF'}),
-                    stroke: new ol.style.Stroke({color: '#bada55', width: 0.5 })
-                })
-            });    
-
             // The MAP
             olmap = new ol.Map({
-                target: 'mapbox',
+                target: 'mapbox-inner',
                 layers: mapLayers,
                 loadTilesWhileInteracting: true,
                 view: new ol.View({
@@ -129,14 +129,42 @@ window.APP = (function (module, $) {
             centreLayer(selLayer); 
             olmap.updateSize();
         }
-        function setPoint() {
+        function setPoint(filename, x, y, latInputId, longInputId) {
+            var selLayer;
+            var features=[];
+            var imgCoords;
 
+            // Get the right layer
+            olmap
+                .getLayers()
+                .forEach(function (layer) {
+                    if (layer.get('name') == filename) {
+                        selLayer=layer;}
+                    });
+            debugger;
+            //Create feature            
+            if (x && y) { features.push(addFeature(filename,x,y)); }
+
+            imgCoords= new ol.source.Vector({ features: features});     
+
+            //Overwrite existing source             
+            selLayer.setSource(imgCoords);
+
+            if (latInputId && longInputId) {
+                //Update element
+                document.getElementById(latInputId).value=x.toFixed(5);
+                document.getElementById(longInputId).value=y.toFixed(5);
+            }
         }
         function addLayer() {
 
         }
-        function addFeature() {
-
+        function addFeature(filename, x, y) {
+            //Create a feature with the specified coords - add filename as an atribute
+            return new ol.Feature({
+                geometry:  new ol.geom.Point(ol.proj.fromLonLat([x,y],crs)), 
+                filename: filename
+            }); 
         }
         function centreLayer(selLayer) {
             // Centre layer on first feature
@@ -147,10 +175,14 @@ window.APP = (function (module, $) {
                 }
             }
         }
+        function doEXIF() {
+            // add image to as map layer
+        }
         return {
             init: init,
             toggle: toggle,
-            getMap: getMap
+            getMap: getMap,
+            doEXIF: doEXIF
         }
       
     }());

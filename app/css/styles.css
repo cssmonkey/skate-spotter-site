@@ -574,7 +574,7 @@ body.show-upload-modal {
     font-family: 'Roboto Slab', serif;
     font-weight: 400;
     font-size: 1.8rem;
-    margin-bottom: .6em;
+    margin: 0 0 .6em;
 }
 
 .cta-group .cta {
@@ -713,14 +713,17 @@ label {
 .map-overlay-title {
     flex: none;
     padding: 1rem 2rem;
-    margin: 0 30px 0 0; 
+    margin: 0 40px 0 0; 
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 .map-overlay-close-btn {
     position: absolute;
-    top: 1rem;
-    right: 2rem;
+    top: .5rem;
+    right: 1rem;
     overflow: hidden;
-    font-size: 1.5rem;
+    font-size: 1.8rem;
     padding: 0;
     background: transparent;
     border: none;
@@ -737,8 +740,27 @@ label {
 }
 
 #mapbox {
-    width: 602px;
-    height: 580px;
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+#mapbox-inner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+#mapbox .ol-zoom {
+    left: auto;
+    right: 7px;
+}
+#mapbox .ol-mouse-position {
+    width: 100px; 
+    height: 50px;
+    left: 25px;
+    bottom:10px;
 }
 
 @media screen and (min-width: 768px) {
@@ -915,6 +937,8 @@ label {
 
 .col-flex {
     display: flex;
+}
+.col-flex-end {
     align-items: flex-end;
 }
 
