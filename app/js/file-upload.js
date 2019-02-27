@@ -10,6 +10,38 @@ function fmtbytes(fileSizeInBytes) {
   return Math.max(fileSizeInBytes, 0.1).toFixed(1) + byteUnits[i];
 }
 
+function readEXIFgps(exif) {
+  var hasGpsData = exif['GPSLatitude'] && exif['GPSLongitude'] && exif['GPSLatitudeRef'] && exif['GPSLongitudeRef'];
+  if (hasGpsData) {
+
+    var GPSLatRef  = exif['GPSLatitudeRef'].toLowerCase();
+    var GPSLngRef = exif['GPSLongitudeRef'].toLowerCase();
+
+    var gpsLat=exif['GPSLatitude'];
+    var gpsLng=exif['GPSLongitude'];
+
+    var lat_degrees = gpsLat[0]['numerator'] / gpsLat[0]['denominator'];
+    var lat_minutes = gpsLat[1]['numerator'] / gpsLat[1]['denominator'];
+    var lat_seconds = gpsLat[2]['numerator'] / gpsLat[2]['denominator'];
+    var lng_degrees = gpsLng[0]['numerator'] / gpsLng[0]['denominator'];
+    var lng_minutes = gpsLng[1]['numerator'] / gpsLng[1]['denominator'];
+    var lng_seconds = gpsLng[2]['numerator'] / gpsLng[2]['denominator'];
+
+    var lat = lat_degrees+(((lat_minutes*60)+(lat_seconds))/3600);
+    var lng = lng_degrees+(((lng_minutes*60)+(lng_seconds))/3600);
+
+    //If the latitude is South, make it negative. 
+    //If the longitude is west, make it negative
+    lat= lat * (GPSLatRef  == 's' ? -1 : 1);
+    lng= lng * (GPSLngRef == 'w' ? -1 : 1);
+
+    if (exif['GPSDateStamp']) {dt= exif['GPSDateStamp'];}
+    
+    return {lat: lat,lng: lng,date:dt};
+  }
+      
+}  
+
 // Revealing module pattern (https://learn.jquery.com/code-organization/concepts/)
 
 window.APP = (function(module, $) {
