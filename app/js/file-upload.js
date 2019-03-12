@@ -124,7 +124,7 @@ window.APP = (function(module, $) {
           allowClick = $(this).data("allowclick") * 1,
           title = $(this).data("title");
 
-        module.map.getMap(latId, longId, filename, allowClick, title);
+        module.fileUploadMap.getMap(latId, longId, filename, allowClick, title);
       });
     }
 
@@ -226,8 +226,6 @@ window.APP = (function(module, $) {
       }
     }
 
-    function removeAllMapLayers() {}
-
     function displayDataCapture() {
       $uploadComponent.addClass("is-active show-data-capture");
       module.loader.start("Processing images", true);
@@ -242,14 +240,39 @@ window.APP = (function(module, $) {
       updateUploadIndicatorText();
     }
 
+    function upload() {
+      var msg ="";
+      var theDate = new Date();
+      var uploadFileDirectory = "upload_"+ theDate.toISOString().substring(0, 19).replace('T', '_').replace(/:/g,"-");
+      var submitDateTime = theDate.toISOString().substring(0, 19).replace('T', ' ');
+    
+      var formData = new FormData();
+      var nameVal = $("submitter").val();
+      var emailVal = $("emailaddr").val();
+      var mpa1 = $("input:radio[name='guideCheck']:checked").val();
+      var mpa2 = $("#lochSunartDays").val();
+
+      formData.append("name", nameVal);
+      formData.append("email", emailVal);
+      formData.append("pth", uploadFileDirectory);
+      formData.append("submitdt", submitDateTime);
+      formData.append("mpaCC", mpa1);
+      formData.append("mpaFISH", mpa2);
+
+
+    }
+
     function clearFiles() {
-      //Clear FILES element
+      // Clear files element
       $fileuploadsInput.val("");
-      //Clear List
+
+      // Clear List
       filestoUpload = [];
-      //REMOVE MAP LAYERS
-      //removeAllMapLayers();
-      //Clear HTML
+
+      // Remove map layers
+      module.fileUploadMap.removeLayers();
+
+      // Clear HTML
       $(".upload-component-filelist-inner", $uploadComponent).html("");
 
       shouldDisplayDataCapture = false;
@@ -289,7 +312,7 @@ window.APP = (function(module, $) {
           );
 
           // GET EXIF data
-          module.map.doEXIF(file, idx);
+          module.fileUploadMap.doEXIF(file, idx);
 
           //Add an event to show exif data on double click
           $("#img_" + idx).on("dblclick", function(e) {
@@ -298,13 +321,9 @@ window.APP = (function(module, $) {
               alert(EXIF.pretty(file));
             });
           });
-
-          handleLocationEntry();
         }
       }
     }
-
-    function handleLocationEntry() {}
 
     function formatImgEntry(file, index) {
       var imgThumbnail =
@@ -586,7 +605,7 @@ window.APP = (function(module, $) {
     $dataCaptureBtn = $("#data-capture-submit", $uploadComponent);
     $dataCaptureSkipBtn = $("#data-capture-skip", $uploadComponent);
 
-    module.map.init();
+    module.fileUploadMap.init();
     uploadComponent.init();
 
     module.loader.init(

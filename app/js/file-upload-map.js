@@ -9,7 +9,7 @@ var clickEvent = (function() {
 window.APP = (function(module, $) {
     "use strict";
   
-    var map = (function() {
+    var fileUploadMap = (function() {
       var $map;
       var isOpen = false;
       var mapLayers = [];
@@ -200,11 +200,7 @@ window.APP = (function(module, $) {
           }
         }
       }
-      function getLocation() {
-
-      }
       function doEXIF(file, id) {
-          debugger;
         //Get EXIF data - need to define callback so file gets loaded before it can read the data
         EXIF.getData(file, function() {
           if (file.exifdata["ExifVersion"]) {
@@ -241,11 +237,11 @@ window.APP = (function(module, $) {
               file.exifdata["GPSLongitudeRef"]
             ) {
               file.exifgps = readEXIFgps(file.exifdata);
+              
               $("#Img_" + id + "_xgps").val(file.exifgps["lng"].toFixed(5));
               $("#Img_" + id + "_ygps").val(file.exifgps["lat"].toFixed(5));
-              $("#Img_" + id + "_location").val("gps");
-              getLocation($("#Img_" + id + "_location"), id);
-              //document.getElementById("loc_"+id+"_gps").style.display="block";
+              $("#Img_" + id + "_location").val("gps").change();
+          
               addLayer(
                 file.name + "_gps",
                 file.exifgps["lng"],
@@ -266,15 +262,25 @@ window.APP = (function(module, $) {
           }
         });
       }
+      function removeLayers() {
+        //Remove all but the base layer
+        olmap.getLayers().forEach(function (layer) {
+          var layerName = layer.get('name');
+          if (layerName != "OSM") {
+            olmap.removeLayer(layer);
+          };
+        });
+      }
       return {
         init: init,
         toggle: toggle,
         getMap: getMap,
-        doEXIF: doEXIF
+        doEXIF: doEXIF,
+        removeLayers: removeLayers
       };
     })();
   
-    module.map = map;
+    module.fileUploadMap = fileUploadMap;
   
     return module;
   })(window.APP || {}, window.jQuery);
